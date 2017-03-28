@@ -1,13 +1,15 @@
 apply plugin: 'java'
 
 repositories {
-        mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
     compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
     compile 'com.machinepublishers:jbrowserdriver:0.17.6'
+    compile 'net.lightbody.bmp:browsermob-core-littleproxy:2.1.0-beta-6'
     compile 'org.jsoup:jsoup:1.10.2'
+    compile 'org.slf4j:slf4j-log4j12:1.7.25'
     compile 'junit:junit:4.12'
 }
 

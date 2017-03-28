@@ -8,7 +8,7 @@ public class PwnBackGui {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
 
-    public PwnBackGui(final IBurpExtenderCallbacks callbacks, final IExtensionHelpers helpers){
+    public PwnBackGui(final IBurpExtenderCallbacks callbacks, final IExtensionHelpers helpers) {
         this.callbacks = callbacks;
         this.helpers = helpers;
     }
