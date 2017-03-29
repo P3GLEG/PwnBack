@@ -1,16 +1,16 @@
 apply plugin: 'java'
-
+apply plugin: 'idea'
+apply plugin: 'java-library-distribution'
+version = '1.0'
 repositories {
-    mavenCentral()
+        mavenCentral()
 }
 
 dependencies {
     compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
     compile 'com.machinepublishers:jbrowserdriver:0.17.6'
-    compile 'net.lightbody.bmp:browsermob-core-littleproxy:2.1.0-beta-6'
     compile 'org.jsoup:jsoup:1.10.2'
-    compile 'org.slf4j:slf4j-log4j12:1.7.25'
-    compile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.12'
 }
 
 
@@ -21,8 +21,26 @@ sourceSets {
         }
     }
 }
+distZip.shouldRunAfter(build)
+jar {
+    // Keep jar clean:
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
+
+    manifest {
+        attributes 'Main-Class': 'burp',
+                'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' ')
+    }
+    // How-to add class path:
+    //     http://stackoverflow.com/questions/22659463/add-classpath-in-manifest-using-gradle
+    //     https://gist.github.com/simon04/6865179
+}
 
 task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'BurpExtender'
+    }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar

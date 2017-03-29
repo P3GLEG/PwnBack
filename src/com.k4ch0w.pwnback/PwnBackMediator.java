@@ -1,7 +1,5 @@
 package com.k4ch0w.pwnback;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -15,7 +13,6 @@ import java.util.concurrent.Executors;
 
 //Wayback documentation located at https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
 public class PwnBackMediator {
-    private final Logger logger = LoggerFactory.getLogger(PwnBackMediator.class);
     private final String waybackString = "http://web.archive.org/cdx/search/cdx?url=%s&limit=%s&from=%s&to=%s" +
             "&showResumeKey=True&collapse=digest";//Remove duplicates based on page digest
     private final int numOfDrivers = 2;
@@ -25,22 +22,24 @@ public class PwnBackMediator {
     private final String yearEnd;
     private final ExecutorService docParsers = Executors.newFixedThreadPool(numOfParsers);
     private final ExecutorService webDrivers = Executors.newFixedThreadPool(numOfDrivers);
-    private BlockingQueue<PwnBackDocument> documentsToParse = new ArrayBlockingQueue<PwnBackDocument>(1000);
-    private BlockingQueue<PwnBackURL> urlsToRequest = new ArrayBlockingQueue<PwnBackURL>(1000);
+    private BlockingQueue<PwnBackDocument> documentsToParse = new ArrayBlockingQueue<>(1000);
+    private BlockingQueue<PwnBackURL> urlsToRequest = new ArrayBlockingQueue<>(10000);
 
 
     public PwnBackMediator() {
         recordLimit = 1000;
         yearStart = "2016";
         yearEnd = "2017";
+
+    }
+
+    public void start(){
         for (int i = 0; i < numOfParsers; i++) {
-            docParsers.execute(new DocumentParserWorker(this));
+            docParsers.execute(new PwnBackParser(this));
         }
         for (int i = 0; i < numOfDrivers; i++) {
             webDrivers.execute(new PwnBackWebDriver(this));
         }
-
-
     }
 
     public void addDocument(PwnBackDocument doc) {
@@ -56,7 +55,7 @@ public class PwnBackMediator {
         try {
             url = urlsToRequest.take();
         } catch (InterruptedException e) {
-            //TODO: LOG
+            System.out.println("Length: " + urlsToRequest.size());
         }
         return url;
     }

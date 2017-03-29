@@ -3,16 +3,12 @@ package com.k4ch0w.pwnback;
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
 import com.machinepublishers.jbrowserdriver.Timezone;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.logging.Level;
 
 /**
  * Created by k4ch0w on 3/27/17.
  */
 public class PwnBackWebDriver implements Runnable {
-    private final Logger logger = LoggerFactory.getLogger(PwnBackWebDriver.class);
     private final PwnBackMediator mediator;
     private final JBrowserDriver driver;
 
@@ -29,7 +25,7 @@ public class PwnBackWebDriver implements Runnable {
     public void run() {
         while (true) {
             PwnBackURL url = mediator.getURL();
-            logger.debug("Processing: " + url);
+            System.out.println("Processing: " + url);
             driver.get(url.getURL());
             String html = driver.getPageSource();
             switch (url.getType()) {
@@ -48,4 +44,5 @@ public class PwnBackWebDriver implements Runnable {
             }
         }
     }
+
 }

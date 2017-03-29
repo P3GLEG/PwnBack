@@ -1,28 +1,48 @@
-package com.k4ch0w.pwnback;
+package burp;
 
-import burp.*;
 
-import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
+import com.k4ch0w.pwnback.PwnBackGui;
+import com.k4ch0w.pwnback.PwnBackMediator;
+
 import java.awt.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
-public class BurpExtender extends AbstractTableModel implements IBurpExtender, ITab, IHttpListener, IMessageEditorController {
-    private final List<LogEntry> log = new ArrayList<LogEntry>();
+public class BurpExtender implements IBurpExtender , ITab {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-    private JSplitPane splitPane;
-    private IMessageEditor requestViewer;
-    private IMessageEditor responseViewer;
-    private IHttpRequestResponse currentlyDisplayedItem;
+    private final PwnBackMediator mediator= new PwnBackMediator();
+    private PwnBackGui gui;
+
+
+    @Override
+    public String getTabCaption() {
+        return "PwnBack";
+    }
+
+    @Override
+    public Component getUiComponent() {
+        return gui;
+    }
+
+    @Override
+    public void registerExtenderCallbacks(IBurpExtenderCallbacks callbacks) {
+        this.callbacks = callbacks;
+        gui = new PwnBackGui();
+        // obtain an extension helpers object
+        helpers = callbacks.getHelpers();
+
+        // set our extension name
+        callbacks.setExtensionName("PwnBack");
+
+        // create our UI
+        callbacks.addSuiteTab(BurpExtender.this);
+
+    }
 
     //
     // implement IBurpExtender
     //
 
+    /*
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
 
@@ -203,4 +223,5 @@ public class BurpExtender extends AbstractTableModel implements IBurpExtender, I
             super.changeSelection(row, col, toggle, extend);
         }
     }
+    */
 }

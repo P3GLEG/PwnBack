@@ -11,9 +11,9 @@ public class PwnBackMediatorTest {
     @Test
     public void addDomain() throws Exception {
         PwnBackMediator m = new PwnBackMediator();
-        m.addDomain("sequence.com");
+        m.addDomain("news.ycombinator.com");
         try {
-            sleep(30000);
+            sleep(90000);
         } catch (Exception e) {
 
         }
