@@ -3,13 +3,16 @@ apply plugin: 'idea'
 apply plugin: 'java-library-distribution'
 version = '1.0'
 repositories {
-        mavenCentral()
+    maven { url 'https://jitpack.io' }
+    mavenCentral()
 }
 
 dependencies {
     compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
-    compile 'com.machinepublishers:jbrowserdriver:0.17.6'
     compile 'org.jsoup:jsoup:1.10.2'
+    compile 'org.seleniumhq.selenium:selenium-java:2.41.0'
+    compile group: 'org.json', name: 'json', version: '20160810'
+    compile group: 'com.codeborne', name: 'phantomjsdriver', version: '1.4.1'
     testCompile 'junit:junit:4.12'
 }
 

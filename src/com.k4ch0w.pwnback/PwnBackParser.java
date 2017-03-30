@@ -8,6 +8,8 @@ import org.jsoup.select.Elements;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by k4ch0w on 3/27/17.
  */
@@ -27,7 +29,7 @@ public class PwnBackParser implements Runnable {
             PwnBackDocument doc = mediator.getDocument();
             switch (doc.getType()) {
                 case WAYBACKAPI:
-                    System.out.println("API CALL");
+                    mediator.addLog("parsing Wayback");
                     parseWayBackAPI(doc.getDocument());
                     break;
                 case ROBOTS:
@@ -55,6 +57,7 @@ public class PwnBackParser implements Runnable {
     }
 
     private void parseRobotsTxt(String html) {
+        mediator.addLog(new PwnBackLogEntry("parsed"));
         //System.out.println(html);
     }
 
@@ -65,29 +68,30 @@ public class PwnBackParser implements Runnable {
         for (Element link :
                 links) {
             String relHref = link.attr("href");
-            if(relHref.startsWith("mailto:")){
-                System.out.println("Found email address " + relHref.replace("mailto:",""));
-            } else if(relHref.startsWith("/web/") && relHref.contains("http")){
+            if (relHref.startsWith("mailto:")) {
+                System.out.println("Found email address " + relHref.replace("mailto:", ""));
+            } else if (relHref.startsWith("/web/") && relHref.contains("http")) {
                 //Wayback machine uses it's domain to serve content thus things are prepended
                 // with http://archive.org/web and why I split them here
                 String clean = relHref.substring(relHref.indexOf("http"));
                 try {
                     String path = new URL(clean).getPath();
-                    if(!path.isEmpty() && !path.equals("/")){
-                        System.out.println(path);
+                    if (!path.isEmpty() && !path.equals("/")) {
+                        mediator.addLog(new PwnBackLogEntry(1,path));
                     }
-                }catch(MalformedURLException e){
+                } catch (MalformedURLException e) {
                     System.err.println("Error parsing URL : " + clean);
                 }
-            } else if(relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
+            } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
                 System.out.println("Empty or starts with #: " + relHref);
                 continue;
-            } else{
-                System.out.println(relHref);
+            } else {
+              mediator.addLog(new PwnBackLogEntry(1,relHref));
             }
         }
     }
-    private String beforeSubstring(String input, String substring){
+
+    private String beforeSubstring(String input, String substring) {
         return input.substring(input.indexOf(substring));
     }
 
@@ -97,7 +101,7 @@ public class PwnBackParser implements Runnable {
         for (String u :
                 waybackUrls) {
             String[] archive = u.split(" ");
-            if(archive.length == 7) {
+            if (archive.length == 7) {
                 String url = String.format(waybackRequestString, archive[1], archive[2]);
                 mediator.addURL(new PwnBackURL(url, PwnBackType.HTML));
                 mediator.addURL(new PwnBackURL(url + ROBOTS_TXT, PwnBackType.ROBOTS));

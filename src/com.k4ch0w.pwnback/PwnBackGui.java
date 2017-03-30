@@ -4,102 +4,69 @@
 
 package com.k4ch0w.pwnback;
 
+
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javax.swing.table.AbstractTableModel;
 
 /**
  * @author unknown
  */
-public class PwnBackGui extends JPanel {
+public class PwnBackGui extends AbstractTableModel {
 
-    private DefaultListModel<String> files = new DefaultListModel<>();
-    public PwnBackGui(){
-        initComponents();
-        files.addElement("test");
-        fileList = new JList<String>(files);
-        files.addElement("FML WTF");
+    private final PwnBackMediator mediator;
+    JTable logTable = new JTable(this);
+
+    public PwnBackGui(PwnBackMediator mediator) {
+        this.mediator = mediator;
     }
 
-
-
-    private void startButtonMouseClicked(MouseEvent e) {
-        // TODO add your code here
+    public JTable getLogTable() {
+        return logTable;
     }
 
-    private void initComponents() {
-        // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        // Generated using JFormDesigner Evaluation license - Paul Ganea
-        tabbedPane1 = new JTabbedPane();
-        panel2 = new JPanel();
-        fileList = new JList();
-        panel1 = new JPanel();
-        domainLabel = new JLabel();
-        domainTextField = new JTextField();
-        startButton = new JButton();
+    public void notifyUpdate() {
+        int row = mediator.getLog().size();
+        fireTableRowsInserted(row, row);
+    }
 
-        //======== this ========
+    @Override
+    public int getRowCount() {
+        return mediator.getLog().size();
+    }
 
-        // JFormDesigner evaluation mark
-        setBorder(new javax.swing.border.CompoundBorder(
-            new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0),
-                "JFormDesigner Evaluation", javax.swing.border.TitledBorder.CENTER,
-                javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12),
-                java.awt.Color.red), getBorder())); addPropertyChangeListener(new java.beans.PropertyChangeListener(){public void propertyChange(java.beans.PropertyChangeEvent e){if("border".equals(e.getPropertyName()))throw new RuntimeException();}});
+    @Override
+    public int getColumnCount() {
+        return 2;
+    }
 
-        setLayout(new BorderLayout());
-
-        //======== tabbedPane1 ========
-        {
-
-            //======== panel2 ========
-            {
-                panel2.setLayout(new GridLayout());
-
-                //---- fileList ----
-                fileList.setVisibleRowCount(10);
-                panel2.add(fileList);
-            }
-            tabbedPane1.addTab("Files", panel2);
+    @Override
+    public String getColumnName(int columnIndex) {
+        switch (columnIndex) {
+            case 0:
+                return "Path";
+            case 1:
+                return "Something";
+            default:
+                return "";
         }
-        add(tabbedPane1, BorderLayout.CENTER);
-
-        //======== panel1 ========
-        {
-            panel1.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-            //---- domainLabel ----
-            domainLabel.setText("Domain: ");
-            panel1.add(domainLabel);
-
-            //---- domainTextField ----
-            domainTextField.setMinimumSize(new Dimension(200, 24));
-            domainTextField.setPreferredSize(new Dimension(200, 24));
-            panel1.add(domainTextField);
-
-            //---- startButton ----
-            startButton.setText("Start");
-            startButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    startButtonMouseClicked(e);
-                }
-            });
-            panel1.add(startButton);
-        }
-        add(panel1, BorderLayout.NORTH);
-        // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    // Generated using JFormDesigner Evaluation license - Paul Ganea
-    private JTabbedPane tabbedPane1;
-    private JPanel panel2;
-    private JList fileList;
-    private JPanel panel1;
-    private JLabel domainLabel;
-    private JTextField domainTextField;
-    private JButton startButton;
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return String.class;
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        PwnBackLogEntry logEntry = mediator.getLog().get(rowIndex);
+        switch (columnIndex) {
+            case 0:
+                return Integer.toString(logEntry.tool);
+            case 1:
+                return logEntry.url.toString();
+            default:
+                return "";
+        }
+    }
+
 }

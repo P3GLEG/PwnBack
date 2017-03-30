@@ -1,10 +1,13 @@
 package com.k4ch0w.pwnback;
 
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.*;
+
+import static java.lang.Thread.sleep;
 
 
 /**
@@ -20,6 +23,8 @@ public class PwnBackMediator {
     private final int recordLimit;
     private final String yearStart;
     private final String yearEnd;
+    private final List<PwnBackLogEntry> log = new ArrayList<PwnBackLogEntry>();
+    private final PwnBackGui gui = new PwnBackGui(this);
     private final ExecutorService docParsers = Executors.newFixedThreadPool(numOfParsers);
     private final ExecutorService webDrivers = Executors.newFixedThreadPool(numOfDrivers);
     private BlockingQueue<PwnBackDocument> documentsToParse = new ArrayBlockingQueue<>(1000);
@@ -30,24 +35,43 @@ public class PwnBackMediator {
         recordLimit = 1000;
         yearStart = "2016";
         yearEnd = "2017";
-
     }
 
     public void start(){
+        addDomain("sequence.com");
         for (int i = 0; i < numOfParsers; i++) {
             docParsers.execute(new PwnBackParser(this));
         }
+
         for (int i = 0; i < numOfDrivers; i++) {
             webDrivers.execute(new PwnBackWebDriver(this));
         }
     }
 
+    public PwnBackGui getGui() {
+        return gui;
+    }
+
+    public List<PwnBackLogEntry> getLog() {
+        return log;
+    }
+
+    public void addLog(String s){
+        addLog(new PwnBackLogEntry(s));
+    }
+    public void addLog(PwnBackLogEntry e) {
+        synchronized (log) {
+            log.add(e);
+            gui.notifyUpdate();
+        }
+    }
+
     public void addDocument(PwnBackDocument doc) {
-        documentsToParse.add(doc);
+             documentsToParse.add(doc);
     }
 
     public void addURL(PwnBackURL url) {
-        urlsToRequest.add(url);
+            urlsToRequest.add(url);
     }
 
     public PwnBackURL getURL() {
@@ -55,7 +79,7 @@ public class PwnBackMediator {
         try {
             url = urlsToRequest.take();
         } catch (InterruptedException e) {
-            System.out.println("Length: " + urlsToRequest.size());
+            e.printStackTrace();
         }
         return url;
     }
@@ -63,9 +87,9 @@ public class PwnBackMediator {
     public PwnBackDocument getDocument() {
         PwnBackDocument doc = null;
         try {
-            doc = documentsToParse.take();
+           doc = documentsToParse.take();
         } catch (InterruptedException e) {
-            ///TODO:LOG
+            e.printStackTrace();
         }
         return doc;
     }
@@ -73,20 +97,6 @@ public class PwnBackMediator {
     public void addDomain(String domain) {
         final String waybackApiGetDomain = String.format(waybackString, domain, recordLimit, yearStart, yearEnd);
         addURL(new PwnBackURL(waybackApiGetDomain, PwnBackType.WAYBACKAPI));
-        /*
-        URL url = new URL(waybackApiGetDomain);
-        URLConnection uc = url.openConnection();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(
-                        uc.getInputStream()));
-        String inputLine;
-        StringBuffer sb = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null)
-            sb.append(inputLine);
-        in.close();
-        */
-
     }
 }
 
