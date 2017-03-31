@@ -4,11 +4,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import static java.lang.Thread.sleep;
+import java.util.Scanner;
 
 /**
  * Created by k4ch0w on 3/27/17.
@@ -29,7 +36,6 @@ public class PwnBackParser implements Runnable {
             PwnBackDocument doc = mediator.getDocument();
             switch (doc.getType()) {
                 case WAYBACKAPI:
-                    mediator.addLog("parsing Wayback");
                     parseWayBackAPI(doc.getDocument());
                     break;
                 case ROBOTS:
@@ -57,8 +63,28 @@ public class PwnBackParser implements Runnable {
     }
 
     private void parseRobotsTxt(String html) {
-        mediator.addLog(new PwnBackLogEntry("parsed"));
-        //System.out.println(html);
+        html = stripHTMLTags(html);
+        Scanner scanner = new Scanner(html);
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine().toLowerCase();
+            String[] temp = line.split(" ");
+            if (temp.length == 2) {
+                switch (temp[0]) {
+                    case "disallow:":
+                        mediator.addPath(temp[1]);
+                        break;
+                    case "allow:":
+                        mediator.addPath(temp[1]);
+                        break;
+                    case "sitemap:":
+                        mediator.addPath("Sitemap" + temp[1]);
+                        break;
+                }
+            } else {
+                System.out.println(temp);
+            }
+        }
+        scanner.close();
     }
 
     private void parseHTML(String html) {
@@ -77,7 +103,7 @@ public class PwnBackParser implements Runnable {
                 try {
                     String path = new URL(clean).getPath();
                     if (!path.isEmpty() && !path.equals("/")) {
-                        mediator.addLog(new PwnBackLogEntry(1,path));
+                        mediator.addPath(path);
                     }
                 } catch (MalformedURLException e) {
                     System.err.println("Error parsing URL : " + clean);
@@ -86,13 +112,9 @@ public class PwnBackParser implements Runnable {
                 System.out.println("Empty or starts with #: " + relHref);
                 continue;
             } else {
-              mediator.addLog(new PwnBackLogEntry(1,relHref));
+                mediator.addPath(relHref);
             }
         }
-    }
-
-    private String beforeSubstring(String input, String substring) {
-        return input.substring(input.indexOf(substring));
     }
 
 
@@ -101,7 +123,7 @@ public class PwnBackParser implements Runnable {
         for (String u :
                 waybackUrls) {
             String[] archive = u.split(" ");
-            if (archive.length == 7) {
+            if (archive.length == 7) { //Each archive address has 7 values return
                 String url = String.format(waybackRequestString, archive[1], archive[2]);
                 mediator.addURL(new PwnBackURL(url, PwnBackType.HTML));
                 mediator.addURL(new PwnBackURL(url + ROBOTS_TXT, PwnBackType.ROBOTS));
@@ -111,6 +133,24 @@ public class PwnBackParser implements Runnable {
     }
 
     private void parseSitemapXML(String html) {
+        DocumentBuilder newDocumentBuilder = null;
+        try {
+            newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            org.w3c.dom.Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(html.getBytes()));
+            NodeList nodeList = parse.getElementsByTagName("loc");
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    mediator.addPath(node.getTextContent());
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

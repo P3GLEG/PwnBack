@@ -1,0 +1,154 @@
+JFDML JFormDesigner: "6.0.0.0.84" Java: "1.8.0_112-release" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+			"columns": 1
+			"rows": 2
+		} ) {
+			name: "this"
+			"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+			"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+			"preferredSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+				"rows": 7
+				"columns": 3
+			} ) {
+				name: "optionsPanel"
+				"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "jsDriverLabel"
+					"text": "Number of PhantomJS Drivers"
+					"horizontalAlignment": 0
+					"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "jsDriverTextField"
+					"horizontalAlignment": 0
+					"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label2"
+					"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "httpRespLabel"
+					"text": "# of HTTP Response Parsers"
+					"horizontalAlignment": 0
+					"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "httpRespTextField"
+					"horizontalAlignment": 0
+					"maximumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"minimumSize": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label3"
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "startYearLabel"
+					"text": "Start Year"
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "starYearTextField"
+					"horizontalAlignment": 0
+					"maximumSize": new java.awt.Dimension( 0, 0 )
+					"minimumSize": new java.awt.Dimension( 0, 0 )
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label4"
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "endYearLabel"
+					"text": "End Year"
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "endYearTextField"
+					"horizontalAlignment": 0
+					"maximumSize": new java.awt.Dimension( 0, 0 )
+					"minimumSize": new java.awt.Dimension( 0, 0 )
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label5"
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "phantomJSLabel"
+					"text": "PhantomJS Location"
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "phantomJSTextField"
+					"horizontalAlignment": 0
+					"maximumSize": new java.awt.Dimension( 0, 0 )
+					"minimumSize": new java.awt.Dimension( 0, 0 )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "phantomJSLocBtn"
+					"text": "Select"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "phantomJSLocBtnMouseClicked", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "outputLabel"
+					"text": "Output Directory"
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "outputTextField"
+					"horizontalAlignment": 0
+					"maximumSize": new java.awt.Dimension( 0, 0 )
+					"minimumSize": new java.awt.Dimension( 0, 0 )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "outputLocationBtn"
+					"text": "Select"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "outputLocationBtnMouseClicked", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "domainLabel"
+					"text": "Domain to Crawl"
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "domainTextField"
+					"horizontalAlignment": 0
+					"maximumSize": new java.awt.Dimension( 0, 0 )
+					"minimumSize": new java.awt.Dimension( 0, 0 )
+					"text": "something.com"
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label1"
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) ) {
+				name: "btnPanel"
+				"maximumSize": new java.awt.Dimension( 500, 500 )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "startBtn"
+					"text": "Start"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "startBtnMouseClicked", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "button1"
+					"text": "Cancel"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "exportResultsBtn"
+					"text": "Export results to File"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "exportResultsBtnMouseClicked", true ) )
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 85, 785 )
+			"size": new java.awt.Dimension( 520, 551 )
+		} )
+	}
+}

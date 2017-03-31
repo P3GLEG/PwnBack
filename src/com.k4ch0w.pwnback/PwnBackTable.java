@@ -11,12 +11,13 @@ import javax.swing.table.AbstractTableModel;
 /**
  * @author unknown
  */
-public class PwnBackGui extends AbstractTableModel {
+public class PwnBackTable extends AbstractTableModel {
 
     private final PwnBackMediator mediator;
+    private final int columnCount = 1;
     JTable logTable = new JTable(this);
 
-    public PwnBackGui(PwnBackMediator mediator) {
+    public PwnBackTable(PwnBackMediator mediator) {
         this.mediator = mediator;
     }
 
@@ -36,7 +37,7 @@ public class PwnBackGui extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return columnCount;
     }
 
     @Override
@@ -44,8 +45,6 @@ public class PwnBackGui extends AbstractTableModel {
         switch (columnIndex) {
             case 0:
                 return "Path";
-            case 1:
-                return "Something";
             default:
                 return "";
         }
@@ -58,12 +57,10 @@ public class PwnBackGui extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        PwnBackLogEntry logEntry = mediator.getLog().get(rowIndex);
+        String logEntry = mediator.getLog().get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return Integer.toString(logEntry.tool);
-            case 1:
-                return logEntry.url.toString();
+                return logEntry;
             default:
                 return "";
         }

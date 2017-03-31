@@ -1,12 +1,8 @@
 package com.k4ch0w.pwnback;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 
@@ -22,7 +18,7 @@ public class PwnBackWebDriver implements Runnable {
         DesiredCapabilities capability = new DesiredCapabilities();
         capability.setCapability(PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY, "/Applications/phantomjs");
         capability.setCapability("takesScreenshot", false);
-        String[] args = {"--ignore-ssl-errors=yes"};
+        String[] args = {"--ignore-ssl-errors=yes"}; //TODO: Fix this JVM has issues based on user's trust store
         capability.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, args);
         capability.setCapability("phantomjs.page.settings.userAgent", "Mozilla/5.0 (Windows NT 5.1; rv:22.0) Gecko/20100101 Firefox/22.0");
         driver = new PhantomJSDriver(capability);
@@ -33,12 +29,10 @@ public class PwnBackWebDriver implements Runnable {
     public void run() {
         while (true) {
             PwnBackURL url = mediator.getURL();
-            mediator.addLog("Processing: " + url);
             driver.get(url.getURL());
             String html = driver.getPageSource();
             switch (url.getType()) {
                 case WAYBACKAPI:
-                    mediator.addLog("Wayback done");
                     mediator.addDocument(new PwnBackDocument(html, PwnBackType.WAYBACKAPI));
                     break;
                 case ROBOTS:

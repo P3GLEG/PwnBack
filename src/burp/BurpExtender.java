@@ -1,16 +1,17 @@
 package burp;
 
+import com.k4ch0w.pwnback.PwnBackGUI;
 import com.k4ch0w.pwnback.PwnBackMediator;
+import com.k4ch0w.pwnback.PwnBackSettings;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class BurpExtender implements IBurpExtender, ITab {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-    private JSplitPane splitPane;
+
+    private PwnBackGUI gui;
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -18,34 +19,14 @@ public class BurpExtender implements IBurpExtender, ITab {
         this.callbacks = callbacks;
 
         helpers = callbacks.getHelpers();
-        callbacks.setExtensionName("Custom logger");
+        callbacks.setExtensionName("PwnBack");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                PwnBackSettings settings = new PwnBackSettings();
                 PwnBackMediator mediator = new PwnBackMediator();
-
-                splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-
-                JScrollPane scrollPane = new JScrollPane(mediator.getGui().getLogTable());
-                JButton startBtn = new JButton();
-                startBtn.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                mediator.start();
-                            }
-                        });
-                    }
-                });
-                splitPane.setLeftComponent(scrollPane);
-                splitPane.setRightComponent(startBtn);
-
-                callbacks.customizeUiComponent(splitPane);
-                callbacks.customizeUiComponent(scrollPane);
+                gui = mediator.getGui();
+                callbacks.customizeUiComponent(gui);
 
                 // add the custom tab to Burp's UI
                 callbacks.addSuiteTab(BurpExtender.this);
@@ -57,12 +38,12 @@ public class BurpExtender implements IBurpExtender, ITab {
 
     @Override
     public String getTabCaption() {
-        return "Logger";
+        return "PwnBack";
     }
 
     @Override
     public Component getUiComponent() {
-        return splitPane;
+        return gui;
     }
 
 
