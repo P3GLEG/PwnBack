@@ -77,7 +77,7 @@ public class PwnBackParser implements Runnable {
                         mediator.addPath(temp[1]);
                         break;
                     case "sitemap:":
-                        mediator.addPath("Sitemap" + temp[1]);
+                        mediator.addPath("Sitemap: " + temp[1]);
                         break;
                 }
             } else {
@@ -101,8 +101,11 @@ public class PwnBackParser implements Runnable {
                 // with http://archive.org/web and why I split them here
                 String clean = relHref.substring(relHref.indexOf("http"));
                 try {
-                    String path = new URL(clean).getPath();
-                    if (!path.isEmpty() && !path.equals("/")) {
+                    URL temp = new URL(clean);
+                    String path = temp.getPath();
+                    if (!path.isEmpty() && !path.equals("/") && !path.equals("/web/")
+                            && !temp.getHost().contains("archive.org")) {
+                        //TODO: Fix edge case http://*.archive.org and /web/ funky logic in parsing
                         mediator.addPath(path);
                     }
                 } catch (MalformedURLException e) {
@@ -110,12 +113,12 @@ public class PwnBackParser implements Runnable {
                 }
             } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
                 System.out.println("Empty or starts with #: " + relHref);
-                continue;
             } else {
-                mediator.addPath(relHref);
+                    mediator.addPath(relHref);
+                }
             }
         }
-    }
+
 
 
     private void parseWayBackAPI(String html) {
@@ -133,7 +136,7 @@ public class PwnBackParser implements Runnable {
     }
 
     private void parseSitemapXML(String html) {
-        DocumentBuilder newDocumentBuilder = null;
+        DocumentBuilder newDocumentBuilder;
         try {
             newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             org.w3c.dom.Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(html.getBytes()));
@@ -144,9 +147,7 @@ public class PwnBackParser implements Runnable {
                     mediator.addPath(node.getTextContent());
                 }
             }
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
+        } catch (ParserConfigurationException | SAXException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();

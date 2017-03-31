@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 /**
  * @author Paul Ganea
@@ -55,8 +56,15 @@ public class MainPanel extends JPanel {
     }
 
     private void startBtnMouseClicked(MouseEvent e) {
-        mediator.addDomain(domainTextField.getText());
-        mediator.start();
+        File f = new File(PwnBackSettings.phatomjsLocation);
+        if(!f.exists()) {
+            JOptionPane.showMessageDialog(this.getParent(),
+                "PhantomJS Binary not found at " + f.getAbsolutePath());
+        } else{
+            mediator.addDomain(domainTextField.getText());
+            mediator.start();
+        }
+
     }
 
     private void exportResultsBtnMouseClicked(MouseEvent e) {
