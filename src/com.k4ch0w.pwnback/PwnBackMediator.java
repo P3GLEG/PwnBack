@@ -1,15 +1,12 @@
 package com.k4ch0w.pwnback;
 
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 
@@ -24,8 +21,8 @@ public class PwnBackMediator {
     private final int recordLimit;
     private final String yearStart;
     private final String yearEnd;
-    private final List<String> log = new ArrayList<String>();
-    private final Set<String> dict = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>()); //wtf java
+    private final List<PwnBackTableEntry> tableEntries = new ArrayList<PwnBackTableEntry>();
+    private final ConcurrentHashMap<String, LinkedList<String>> dict = new ConcurrentHashMap<String,LinkedList<String>>();
     private final ExecutorService docParsers = Executors.newFixedThreadPool(PwnBackSettings.numofHttpResponseParsers);
     private final ExecutorService webDrivers = Executors.newFixedThreadPool(PwnBackSettings.numOfJSWebDrivers);
     private final PwnBackGUI gui = new PwnBackGUI(this);
@@ -53,27 +50,41 @@ public class PwnBackMediator {
         return gui;
     }
 
-    public List<String> getLog() {
-        return log;
+    public List<PwnBackTableEntry> getLog() {
+        return tableEntries;
     }
 
-    public void addPath(String path) {
-        if (!dict.contains(path)) {
-            dict.add(path);
-            synchronized (log) {
-                log.add(path);
+    public void addPath(PwnBackTableEntry entry) {
+        if (!dict.containsKey(entry.getPath())) {
+            dict.put(entry.getPath(), new LinkedList<String>());
+            dict.get(entry.getPath()).add(entry.getUrlFoundAt());
+            synchronized (tableEntries) {
+                tableEntries.add(entry);
                 gui.notifyUpdate();
             }
+        } else{
+            dict.get(entry.getPath()).add(entry.getUrlFoundAt());
         }
     }
 
     public void exportPathsToFile() {
         Path file = Paths.get(PwnBackSettings.outputDir, "output.txt");
-        try {
-            Files.write(file, log, Charset.forName("UTF-8"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        StringBuffer sb = new StringBuffer();
+            for (Map.Entry<String, LinkedList<String>> e :
+                    dict.entrySet()) {
+                sb.append(e.getKey() +":");
+                for (String s : e.getValue()) {
+                    sb.append(s);
+                }
+                sb.append(System.getProperty("line.separator"));
+            }
+            Charset charset = Charset.forName("UTF-8");
+            String s = sb.toString();
+            try (BufferedWriter writer = Files.newBufferedWriter(file, charset)) {
+                writer.write(s, 0, s.length());
+            } catch (IOException x) {
+                System.err.format("IOException: %s%n", x);
+            }
     }
 
     public void addDocument(PwnBackDocument doc) {

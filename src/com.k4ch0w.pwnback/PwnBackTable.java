@@ -14,7 +14,7 @@ import javax.swing.table.AbstractTableModel;
 public class PwnBackTable extends AbstractTableModel {
 
     private final PwnBackMediator mediator;
-    private final int columnCount = 1;
+    private final int columnCount = 2;
     JTable logTable = new JTable(this);
 
     public PwnBackTable(PwnBackMediator mediator) {
@@ -45,6 +45,8 @@ public class PwnBackTable extends AbstractTableModel {
         switch (columnIndex) {
             case 0:
                 return "Path";
+            case 1:
+                return "Found at";
             default:
                 return "";
         }
@@ -57,10 +59,12 @@ public class PwnBackTable extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        String logEntry = mediator.getLog().get(rowIndex);
+        PwnBackTableEntry logEntry = mediator.getLog().get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return logEntry;
+                return logEntry.getPath();
+            case 1:
+                return logEntry.getUrlFoundAt();
             default:
                 return "";
         }

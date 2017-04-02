@@ -6,9 +6,11 @@ package com.k4ch0w.pwnback;
 public class PwnBackDocument {
     private PwnBackType type;
     private String document;
+    private String urlFoundAt;
 
-    public PwnBackDocument(String document, PwnBackType type) {
+    public PwnBackDocument(String document, String urlFoundAt, PwnBackType type) {
         this.document = document;
+        this.urlFoundAt = urlFoundAt;
         this.type = type;
     }
 
@@ -18,6 +20,10 @@ public class PwnBackDocument {
 
     public PwnBackType getType() {
         return type;
+    }
+
+    public String getUrlFoundAt() {
+        return urlFoundAt;
     }
 
     @Override

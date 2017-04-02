@@ -33,16 +33,16 @@ public class PwnBackWebDriver implements Runnable {
             String html = driver.getPageSource();
             switch (url.getType()) {
                 case WAYBACKAPI:
-                    mediator.addDocument(new PwnBackDocument(html, PwnBackType.WAYBACKAPI));
+                    mediator.addDocument(new PwnBackDocument(html, url.getURL(), PwnBackType.WAYBACKAPI));
                     break;
                 case ROBOTS:
-                    mediator.addDocument(new PwnBackDocument(html, PwnBackType.ROBOTS));
+                    mediator.addDocument(new PwnBackDocument(html, url.getURL(), PwnBackType.ROBOTS));
                     break;
                 case SITEMAPXML:
-                    mediator.addDocument(new PwnBackDocument(html, PwnBackType.SITEMAPXML));
+                    mediator.addDocument(new PwnBackDocument(html, url.getURL(), PwnBackType.SITEMAPXML));
                     break;
                 case HTML:
-                    mediator.addDocument(new PwnBackDocument(html, PwnBackType.HTML));
+                    mediator.addDocument(new PwnBackDocument(html, url.getURL(), PwnBackType.HTML));
                     break;
             }
         }

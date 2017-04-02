@@ -36,16 +36,16 @@ public class PwnBackParser implements Runnable {
             PwnBackDocument doc = mediator.getDocument();
             switch (doc.getType()) {
                 case WAYBACKAPI:
-                    parseWayBackAPI(doc.getDocument());
+                    parseWayBackAPI(doc);
                     break;
                 case ROBOTS:
-                    parseRobotsTxt(doc.getDocument());
+                    parseRobotsTxt(doc);
                     break;
                 case SITEMAPXML:
-                    parseSitemapXML(doc.getDocument());
+                    parseSitemapXML(doc);
                     break;
                 case HTML:
-                    parseHTML(doc.getDocument());
+                    parseHTML(doc);
                     break;
                 default:
                     System.out.println("fuck if I know");
@@ -62,22 +62,22 @@ public class PwnBackParser implements Runnable {
         return Jsoup.parse(html).text();
     }
 
-    private void parseRobotsTxt(String html) {
-        html = stripHTMLTags(html);
-        Scanner scanner = new Scanner(html);
+    private void parseRobotsTxt(PwnBackDocument doc) {
+        String txt = stripHTMLTags(doc.getDocument());
+        Scanner scanner = new Scanner(txt);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().toLowerCase();
             String[] temp = line.split(" ");
             if (temp.length == 2) {
                 switch (temp[0]) {
                     case "disallow:":
-                        mediator.addPath(temp[1]);
+                        mediator.addPath(new PwnBackTableEntry(temp[1], doc.getUrlFoundAt()));
                         break;
                     case "allow:":
-                        mediator.addPath(temp[1]);
+                        mediator.addPath(new PwnBackTableEntry(temp[1], doc.getUrlFoundAt()));
                         break;
                     case "sitemap:":
-                        mediator.addPath("Sitemap: " + temp[1]);
+                        mediator.addPath(new PwnBackTableEntry("Sitemap: " + temp[1], doc.getUrlFoundAt()));
                         break;
                 }
             } else {
@@ -87,8 +87,8 @@ public class PwnBackParser implements Runnable {
         scanner.close();
     }
 
-    private void parseHTML(String html) {
-        html = removeWaybackToolbar(html);
+    private void parseHTML(PwnBackDocument document) {
+        String html = removeWaybackToolbar(document.getDocument());
         Document doc = Jsoup.parse(html);
         Elements links = doc.select("a");
         for (Element link :
@@ -106,7 +106,7 @@ public class PwnBackParser implements Runnable {
                     if (!path.isEmpty() && !path.equals("/") && !path.equals("/web/")
                             && !temp.getHost().contains("archive.org")) {
                         //TODO: Fix edge case http://*.archive.org and /web/ funky logic in parsing
-                        mediator.addPath(path);
+                        mediator.addPath(new PwnBackTableEntry(path, document.getUrlFoundAt()));
                     }
                 } catch (MalformedURLException e) {
                     System.err.println("Error parsing URL : " + clean);
@@ -114,15 +114,15 @@ public class PwnBackParser implements Runnable {
             } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
                 System.out.println("Empty or starts with #: " + relHref);
             } else {
-                    mediator.addPath(relHref);
+                    mediator.addPath(new PwnBackTableEntry(relHref, document.getUrlFoundAt()));
                 }
             }
         }
 
 
 
-    private void parseWayBackAPI(String html) {
-        String[] waybackUrls = stripHTMLTags(html).split("\\r?\\n");
+    private void parseWayBackAPI(PwnBackDocument doc) {
+        String[] waybackUrls = stripHTMLTags(doc.getDocument()).split("\\r?\\n");
         for (String u :
                 waybackUrls) {
             String[] archive = u.split(" ");
@@ -135,16 +135,16 @@ public class PwnBackParser implements Runnable {
         }
     }
 
-    private void parseSitemapXML(String html) {
+    private void parseSitemapXML(PwnBackDocument doc) {
         DocumentBuilder newDocumentBuilder;
         try {
             newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(html.getBytes()));
+            org.w3c.dom.Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(doc.getDocument().getBytes()));
             NodeList nodeList = parse.getElementsByTagName("loc");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    mediator.addPath(node.getTextContent());
+                    mediator.addPath(new PwnBackTableEntry(node.getTextContent(), doc.getUrlFoundAt()));
                 }
             }
         } catch (ParserConfigurationException | SAXException e) {
