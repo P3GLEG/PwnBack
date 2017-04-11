@@ -12,6 +12,10 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Paul Ganea
@@ -58,6 +62,7 @@ public class PwnBackGUI extends JPanel {
         }
         startBtn.setEnabled(false);
         cancelBtn.setEnabled(true);
+        PwnBackSettings.domainToSearch = domainTextField.getText();
     }
 
     private void outputBtnMouseClicked(MouseEvent e) {
@@ -86,7 +91,16 @@ public class PwnBackGUI extends JPanel {
     }
 
     private void exportBtnMouseClicked(MouseEvent e) {
-        this.mediator.exportPathsToFile(webTreePanel.getTree());
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
+        Path filename = Paths.get(PwnBackSettings.outputDir, PwnBackSettings.domainToSearch +
+                "_" + timeStamp + ".txt");
+        if (this.mediator.exportPathsToFile(webTreePanel.getTree(), filename)) {
+            JOptionPane.showMessageDialog(this.getParent(),
+                    "File written to " + filename);
+        } else {
+            JOptionPane.showMessageDialog(this.getParent(),
+                    "Unable to write to folder " + PwnBackSettings.outputDir + "!");
+        }
 
     }
 

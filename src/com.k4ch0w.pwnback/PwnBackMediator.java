@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -100,23 +98,30 @@ public class PwnBackMediator {
         }
     }
 
-    public void exportPathsToFile(TreeModel tree) { //TODO: Parse WebTree
-        Path file = Paths.get(PwnBackSettings.outputDir, "output.txt");
-        StringBuffer sb = new StringBuffer();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getRoot();
-        for (Enumeration node = root.breadthFirstEnumeration(); node.hasMoreElements(); ) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.nextElement();
-            PwnBackNode usrNode = (PwnBackNode) child.getUserObject();
-            sb.append(usrNode.getPath());
-            sb.append(System.getProperty("line.separator"));
+    public String generatePath(TreeModel model, Object object, String indent) {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
+        if (node.getParent() != null && node.getParent().equals(model.getRoot())) {
+            indent = "/"; //root node case otherwise will be // instead of /
         }
+        String myRow = indent + object + System.getProperty("line.separator");
+        for (int i = 0; i < model.getChildCount(object); i++) {
+            myRow += generatePath(model, model.getChild(object, i), indent + object + "/");
+        }
+        return myRow;
+    }
+
+    public boolean exportPathsToFile(TreeModel tree, Path filename) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(generatePath(tree, tree.getRoot(), ""));
         Charset charset = Charset.forName("UTF-8");
         String s = sb.toString();
-        try (BufferedWriter writer = Files.newBufferedWriter(file, charset)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(filename, charset)) {
             writer.write(s, 0, s.length());
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
+            return false;
         }
+        return true;
     }
 
     public void addDocument(PwnBackDocument doc) {

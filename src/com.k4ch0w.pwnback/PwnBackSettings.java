@@ -11,6 +11,7 @@ public class PwnBackSettings {
     public static String phatomjsLocation;
     public static String outputDir;
     public static boolean debug;
+    public static String domainToSearch;
     private static PwnBackSettings _instance = instance();
 
     public PwnBackSettings() {
@@ -20,6 +21,7 @@ public class PwnBackSettings {
         endYear = 2017;
         phatomjsLocation = "/Applications/phantomjs";
         outputDir = System.getProperty("user.home");
+        domainToSearch = "";
         debug = false;
     }
 

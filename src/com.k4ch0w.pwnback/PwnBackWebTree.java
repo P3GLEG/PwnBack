@@ -40,6 +40,7 @@ public class PwnBackWebTree extends JPanel {
                     DocumentFrame docPanel = null;
                     try {
                         docPanel = new DocumentFrame(nodeInfo.getDocuments());
+                        docPanel.setTitle(nodeInfo.getPath());
                         docPanel.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         docPanel.setVisible(true);
                     } catch (IOException | SAXException e1) {
@@ -97,6 +98,7 @@ public class PwnBackWebTree extends JPanel {
         } else {
             child = pathExists(parent, paths[0]);
             if (child == null) {
+                //New Leaf
                 if (parent.equals(rootNode)) {
                     child = addObject(parent, newNode, true);
                 } else {
