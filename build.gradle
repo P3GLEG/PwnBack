@@ -3,7 +3,7 @@ apply plugin: 'idea'
 apply plugin: 'java-library-distribution'
 version = '1.0'
 repositories {
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://jitpack.io'}
     mavenCentral()
 }
 
@@ -13,9 +13,11 @@ dependencies {
     compile 'org.seleniumhq.selenium:selenium-java:2.41.0'
     compile group: 'org.json', name: 'json', version: '20160810'
     compile group: 'com.codeborne', name: 'phantomjsdriver', version: '1.4.1'
+    compile group: 'com.miglayout', name: 'miglayout', version: '3.7.4'
+    compile group: 'org.swinglabs.swingx', name: 'swingx-all', version: '1.6.5-1'
+    compile 'com.github.crawler-commons:crawler-commons:0.7'
     testCompile 'junit:junit:4.12'
 }
-
 
 sourceSets {
     main {
@@ -26,25 +28,20 @@ sourceSets {
 }
 distZip.shouldRunAfter(build)
 jar {
-    // Keep jar clean:
     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/*.MF'
-
     manifest {
         attributes 'Main-Class': 'burp',
                 'Class-Path': configurations.runtime.files.collect { "lib/$it.name" }.join(' ')
     }
-    // How-to add class path:
-    //     http://stackoverflow.com/questions/22659463/add-classpath-in-manifest-using-gradle
-    //     https://gist.github.com/simon04/6865179
 }
 
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
+        attributes 'Implementation-Title': 'PwnBack',
                 'Implementation-Version': version,
                 'Main-Class': 'BurpExtender'
     }
-    baseName = project.name + '-all'
+    baseName = project.name
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }

@@ -30,7 +30,7 @@ public class PwnBackMediator {
     private final int recordLimit;
     private final String yearStart;
     private final String yearEnd;
-    private final List<String> tableEntries = new ArrayList<String>();
+    private final List<PwnBackTableEntry> tableEntries = new ArrayList<PwnBackTableEntry>();
     private final ConcurrentHashMap<String, LinkedList<String>> dict = new ConcurrentHashMap<String, LinkedList<String>>();
     private final ExecutorService docParsers = Executors.newFixedThreadPool(PwnBackSettings.numofHttpResponseParsers);
     private final ExecutorService webDrivers = Executors.newFixedThreadPool(PwnBackSettings.numOfJSWebDrivers);
@@ -44,8 +44,10 @@ public class PwnBackMediator {
     }
 
     public void start() {
-        addLog("Marty McFly: Wait a minute. Wait a minute, Doc. Ah... Are you telling me that you built a time machine... out of a DeLorean?");
-        addLog("Dr. Emmett Brown: The way I see it, if you're gonna build a time machine into a car, why not do it with some *style?*");
+        LOG_INFO("Marty McFly: Wait a minute. Wait a minute, Doc. Ah..." +
+                " Are you telling me that you built a time machine... out of a DeLorean?");
+        LOG_INFO("Dr. Emmett Brown: The way I see it, if you're gonna build a time machine into a car," +
+                " why not do it with some *style?*");
         for (int i = 0; i < PwnBackSettings.numofHttpResponseParsers; i++) {
             docParsers.execute(new PwnBackParser(this));
         }
@@ -59,18 +61,33 @@ public class PwnBackMediator {
         return gui;
     }
 
-    public List<String> getLog() {
+    public List<PwnBackTableEntry> getLog() {
         return tableEntries;
     }
 
-    public void addLog(String msg) {
+    public void LOG_DEBUG(String logMsg) {
+        if (PwnBackSettings.debug) {
+            LOG(new PwnBackTableEntry(logMsg, PwnBackType.LOG_DEBUG));
+        }
+    }
+
+    public void LOG_ERROR(String logMsg) {
+        LOG(new PwnBackTableEntry(logMsg, PwnBackType.LOG_ERROR));
+    }
+
+    public void LOG_INFO(String logMsg) {
+        LOG(new PwnBackTableEntry(logMsg, PwnBackType.LOG_INFO));
+    }
+
+    private void LOG(PwnBackTableEntry entry) {
         logTableLock.lock();
         try {
-            tableEntries.add(msg);
+            tableEntries.add(entry);
             gui.notifyUpdate();
         } finally {
             logTableLock.unlock();
         }
+
 
     }
 
@@ -111,7 +128,7 @@ public class PwnBackMediator {
     }
 
     public void cancel() {
-        addLog("Putting the beast to sleep");
+        LOG_INFO("Putting the beast to sleep");
         webDrivers.shutdownNow();
         docParsers.shutdownNow();
     }

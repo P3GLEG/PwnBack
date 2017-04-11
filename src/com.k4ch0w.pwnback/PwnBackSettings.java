@@ -10,6 +10,7 @@ public class PwnBackSettings {
     public static int endYear;
     public static String phatomjsLocation;
     public static String outputDir;
+    public static boolean debug;
     private static PwnBackSettings _instance = instance();
 
     public PwnBackSettings() {
@@ -19,6 +20,7 @@ public class PwnBackSettings {
         endYear = 2017;
         phatomjsLocation = "/Applications/phantomjs";
         outputDir = System.getProperty("user.home");
+        debug = false;
     }
 
     static public PwnBackSettings instance() {

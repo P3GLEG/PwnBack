@@ -9,6 +9,8 @@ import org.jdesktop.swingx.table.TableUtilities;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
 
 /**
  * @author unknown
@@ -27,6 +29,16 @@ public class PwnBackTable extends AbstractTableModel {
                 logTable.scrollRectToVisible(logTable.getCellRect(viewRow, 0, true));
             }
         });
+        logTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                c.setForeground(mediator.getLog().get(row).getRowColor());
+                return c;
+            }
+        });
+
+
     }
 
     public JTable getLogTable() {
@@ -60,15 +72,22 @@ public class PwnBackTable extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return String.class;
+        switch (columnIndex) {
+            case 0:
+                return String.class;
+            case 1:
+                return Color.class;
+        }
+        return null;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        String logEntry = mediator.getLog().get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return logEntry;
+                return mediator.getLog().get(rowIndex).getLogMsg();
+            case 1:
+                return mediator.getLog().get(rowIndex).getRowColor();
             default:
                 return "";
         }

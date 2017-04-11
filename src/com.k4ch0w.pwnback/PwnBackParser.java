@@ -42,7 +42,7 @@ public class PwnBackParser implements Runnable {
                     parseHTML(doc);
                     break;
                 default:
-                    mediator.addLog("Unable to identify PwnBack DocType " + doc.getType());
+                    mediator.LOG_ERROR("Unable to identify PwnBack DocType " + doc.getType());
             }
         }
     }
@@ -75,7 +75,7 @@ public class PwnBackParser implements Runnable {
                         break;
                 }
             } else {
-                mediator.addLog("Fix this? " + Arrays.toString(temp));
+                mediator.LOG_DEBUG("Fix this? " + Arrays.toString(temp));
             }
         }
         scanner.close();
@@ -89,7 +89,7 @@ public class PwnBackParser implements Runnable {
                 links) {
             String relHref = link.attr("href");
             if (relHref.startsWith("mailto:")) {
-                mediator.addLog("Found email address " + relHref.replace("mailto:", ""));
+                mediator.LOG_INFO("Found email address " + relHref.replace("mailto:", ""));
             } else if (relHref.startsWith("/web/") && relHref.contains("http")) {
                 //Wayback machine uses it's domain to serve content thus things are prepended
                 // with http://archive.org/web and why I split them here
@@ -102,10 +102,10 @@ public class PwnBackParser implements Runnable {
                         mediator.addPath(new PwnBackNode(path, document));
                     }
                 } catch (MalformedURLException e) {
-                    mediator.addLog("Error parsing URL : " + clean);
+                    mediator.LOG_ERROR("Error parsing URL : " + clean);
                 }
             } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
-                mediator.addLog("Empty or starts with #: " + relHref);
+                mediator.LOG_DEBUG("Empty or starts with #: " + relHref);
             } else {
 
                 if (checkValidURL(relHref)) {
@@ -119,7 +119,7 @@ public class PwnBackParser implements Runnable {
         try {
             URL temp = new URL(url);
             String hostname = temp.getHost();
-            mediator.addLog("Hostname found " + hostname);
+            mediator.LOG_DEBUG("Hostname found " + hostname);
             if (hostname != null && !hostname.contains("archive.org") && !hostname.contains("openlibrary.org")
                     && !hostname.contains("archive-it.org")) {
                 return true;
@@ -168,11 +168,11 @@ public class PwnBackParser implements Runnable {
                         SiteMap sm = (SiteMap) asmi;
                         addSiteMapURLS(sm, doc);
                     } else {
-                        mediator.addLog("Error figuring out ASM type: " + asmi.getClass());
+                        mediator.LOG_ERROR("Error figuring out ASM type: " + asmi.getClass());
                     }
                 }
             } else {
-                mediator.addLog("Shouldn't be here");
+                mediator.LOG_ERROR("Shouldn't be here");
             }
         } catch (IOException | UnknownFormatException e) {
             e.printStackTrace();

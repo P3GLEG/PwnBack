@@ -7,5 +7,8 @@ public enum PwnBackType {
     WAYBACKAPI,
     ROBOTS,
     SITEMAPXML,
-    HTML
+    HTML,
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_ERROR
 }

@@ -52,7 +52,7 @@ public class PwnBackGUI extends JPanel {
             JOptionPane.showMessageDialog(this.getParent(),
                     "No domain put into domainTextField!");
         } else {
-            mediator.addLog("Staring crawl on:" + domainTextField.getText());
+            mediator.LOG_INFO("Staring crawl on:" + domainTextField.getText());
             mediator.addDomain(domainTextField.getText());
             mediator.start();
         }
