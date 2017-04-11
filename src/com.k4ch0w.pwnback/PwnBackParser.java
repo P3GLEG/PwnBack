@@ -1,30 +1,24 @@
 package com.k4ch0w.pwnback;
 
+import crawlercommons.sitemaps.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Scanner;
+
+import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
 /**
  * Created by k4ch0w on 3/27/17.
  */
 public class PwnBackParser implements Runnable {
     private final PwnBackMediator mediator;
-    private final String waybackRequestString = "http://web.archive.org/web/%s/%s";
-    private final String ROBOTS_TXT = "robots.txt";
-    private final String SITEMAP_XML = "sitemap.xml";
 
     public PwnBackParser(PwnBackMediator mediator) {
         this.mediator = mediator;
@@ -48,7 +42,7 @@ public class PwnBackParser implements Runnable {
                     parseHTML(doc);
                     break;
                 default:
-                    System.out.println("fuck if I know");
+                    mediator.addLog("Unable to identify PwnBack DocType " + doc.getType());
             }
         }
     }
@@ -71,17 +65,17 @@ public class PwnBackParser implements Runnable {
             if (temp.length == 2) {
                 switch (temp[0]) {
                     case "disallow:":
-                        mediator.addPath(new PwnBackTableEntry(temp[1], doc.getUrlFoundAt()));
+                        mediator.addPath(new PwnBackNode(temp[1], doc));
                         break;
                     case "allow:":
-                        mediator.addPath(new PwnBackTableEntry(temp[1], doc.getUrlFoundAt()));
+                        mediator.addPath(new PwnBackNode(temp[1], doc));
                         break;
                     case "sitemap:":
-                        mediator.addPath(new PwnBackTableEntry("Sitemap: " + temp[1], doc.getUrlFoundAt()));
+                        mediator.addURL(new PwnBackURL(temp[1], PwnBackType.SITEMAPXML));
                         break;
                 }
             } else {
-                System.out.println(temp);
+                mediator.addLog("Fix this? " + Arrays.toString(temp));
             }
         }
         scanner.close();
@@ -95,7 +89,7 @@ public class PwnBackParser implements Runnable {
                 links) {
             String relHref = link.attr("href");
             if (relHref.startsWith("mailto:")) {
-                System.out.println("Found email address " + relHref.replace("mailto:", ""));
+                mediator.addLog("Found email address " + relHref.replace("mailto:", ""));
             } else if (relHref.startsWith("/web/") && relHref.contains("http")) {
                 //Wayback machine uses it's domain to serve content thus things are prepended
                 // with http://archive.org/web and why I split them here
@@ -105,20 +99,36 @@ public class PwnBackParser implements Runnable {
                     String path = temp.getPath();
                     if (!path.isEmpty() && !path.equals("/") && !path.equals("/web/")
                             && !temp.getHost().contains("archive.org")) {
-                        //TODO: Fix edge case http://*.archive.org and /web/ funky logic in parsing
-                        mediator.addPath(new PwnBackTableEntry(path, document.getUrlFoundAt()));
+                        mediator.addPath(new PwnBackNode(path, document));
                     }
                 } catch (MalformedURLException e) {
-                    System.err.println("Error parsing URL : " + clean);
+                    mediator.addLog("Error parsing URL : " + clean);
                 }
             } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
-                System.out.println("Empty or starts with #: " + relHref);
+                mediator.addLog("Empty or starts with #: " + relHref);
             } else {
-                    mediator.addPath(new PwnBackTableEntry(relHref, document.getUrlFoundAt()));
+
+                if (checkValidURL(relHref)) {
+                    mediator.addPath(new PwnBackNode(relHref, document));
                 }
             }
         }
+    }
 
+    private boolean checkValidURL(String url) {
+        try {
+            URL temp = new URL(url);
+            String hostname = temp.getHost();
+            mediator.addLog("Hostname found " + hostname);
+            if (hostname != null && !hostname.contains("archive.org") && !hostname.contains("openlibrary.org")
+                    && !hostname.contains("archive-it.org")) {
+                return true;
+            }
+        } catch (MalformedURLException e) {
+            return false;
+        }
+        return false;
+    }
 
 
     private void parseWayBackAPI(PwnBackDocument doc) {
@@ -126,30 +136,45 @@ public class PwnBackParser implements Runnable {
         for (String u :
                 waybackUrls) {
             String[] archive = u.split(" ");
-            if (archive.length == 7) { //Each archive address has 7 values return
+            if (archive.length == 7 && (!archive[1].equals("http:///") || !archive[1].equals("https:///"))) { //Each archive address has 7 values return
+                String waybackRequestString = "http://web.archive.org/web/%s/%s";
                 String url = String.format(waybackRequestString, archive[1], archive[2]);
                 mediator.addURL(new PwnBackURL(url, PwnBackType.HTML));
+                String ROBOTS_TXT = "robots.txt";
                 mediator.addURL(new PwnBackURL(url + ROBOTS_TXT, PwnBackType.ROBOTS));
+                String SITEMAP_XML = "sitemap.xml";
                 mediator.addURL(new PwnBackURL(url + SITEMAP_XML, PwnBackType.SITEMAPXML));
             }
         }
     }
 
+    private void addSiteMapURLS(SiteMap sm, PwnBackDocument doc) {
+        for (SiteMapURL url : sm.getSiteMapUrls()) {
+            mediator.addPath(new PwnBackNode(url.toString(), doc));
+        }
+    }
+
     private void parseSitemapXML(PwnBackDocument doc) {
-        DocumentBuilder newDocumentBuilder;
         try {
-            newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(doc.getDocument().getBytes()));
-            NodeList nodeList = parse.getElementsByTagName("loc");
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node node = nodeList.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    mediator.addPath(new PwnBackTableEntry(node.getTextContent(), doc.getUrlFoundAt()));
+            SiteMapParser parser = new SiteMapParser();
+            AbstractSiteMap asm = parser.parseSiteMap(doc.getDocument().getBytes(UTF_8), new URL(doc.getUrlFoundAt()));
+            if (asm instanceof SiteMap) {
+                SiteMap sm = (SiteMap) asm;
+                addSiteMapURLS(sm, doc);
+            } else if (asm instanceof SiteMapIndex) {
+                SiteMapIndex smi = (SiteMapIndex) asm;
+                for (AbstractSiteMap asmi : smi.getSitemaps()) {
+                    if (asmi instanceof SiteMap) {
+                        SiteMap sm = (SiteMap) asmi;
+                        addSiteMapURLS(sm, doc);
+                    } else {
+                        mediator.addLog("Error figuring out ASM type: " + asmi.getClass());
+                    }
                 }
+            } else {
+                mediator.addLog("Shouldn't be here");
             }
-        } catch (ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (IOException | UnknownFormatException e) {
             e.printStackTrace();
         }
 

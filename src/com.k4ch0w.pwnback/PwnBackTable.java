@@ -5,6 +5,8 @@
 package com.k4ch0w.pwnback;
 
 
+import org.jdesktop.swingx.table.TableUtilities;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
@@ -14,11 +16,17 @@ import javax.swing.table.AbstractTableModel;
 public class PwnBackTable extends AbstractTableModel {
 
     private final PwnBackMediator mediator;
-    private final int columnCount = 2;
-    JTable logTable = new JTable(this);
+    private final int columnCount = 1;
+    private final JTable logTable = new JTable(this);
 
     public PwnBackTable(PwnBackMediator mediator) {
         this.mediator = mediator;
+        logTable.getModel().addTableModelListener(e -> {
+            if (TableUtilities.isInsert(e)) {
+                int viewRow = logTable.convertRowIndexToView(e.getFirstRow());
+                logTable.scrollRectToVisible(logTable.getCellRect(viewRow, 0, true));
+            }
+        });
     }
 
     public JTable getLogTable() {
@@ -44,9 +52,7 @@ public class PwnBackTable extends AbstractTableModel {
     public String getColumnName(int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return "Path";
-            case 1:
-                return "Found at";
+                return "";
             default:
                 return "";
         }
@@ -59,12 +65,10 @@ public class PwnBackTable extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        PwnBackTableEntry logEntry = mediator.getLog().get(rowIndex);
+        String logEntry = mediator.getLog().get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return logEntry.getPath();
-            case 1:
-                return logEntry.getUrlFoundAt();
+                return logEntry;
             default:
                 return "";
         }

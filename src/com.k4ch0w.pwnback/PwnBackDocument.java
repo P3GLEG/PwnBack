@@ -28,7 +28,7 @@ public class PwnBackDocument {
 
     @Override
     public String toString() {
-        return document;
+        return urlFoundAt;
     }
 
 

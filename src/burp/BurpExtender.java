@@ -10,29 +10,35 @@ import java.awt.*;
 public class BurpExtender implements IBurpExtender, ITab {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-
-    private PwnBackGUI gui;
+    private PwnBackGUI panel;
+    // private DocumentFrame d;
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
-        // keep a reference to our callbacks object
         this.callbacks = callbacks;
-
         helpers = callbacks.getHelpers();
         callbacks.setExtensionName("PwnBack");
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                PwnBackSettings settings = new PwnBackSettings();
-                PwnBackMediator mediator = new PwnBackMediator();
-                gui = mediator.getGui();
-                callbacks.customizeUiComponent(gui);
+        SwingUtilities.invokeLater(() -> {
+            PwnBackSettings settings = new PwnBackSettings(); //Singleton Initialization
+            PwnBackMediator mediator = new PwnBackMediator();
+            panel = mediator.getGui();
+            callbacks.customizeUiComponent(panel);
 
-                // add the custom tab to Burp's UI
-                callbacks.addSuiteTab(BurpExtender.this);
+            /*
+            try {
+                ArrayList<String> temp = new ArrayList<String>();
+                temp.add("fuckit");
 
-                // register ourselves as an HTTP listener
+                d = new DocumentFrame(temp, "<html>Ain't no way I'mma fail </html>");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
             }
+            callbacks.customizeUiComponent(d);
+
+            */
+            callbacks.addSuiteTab(BurpExtender.this);
         });
     }
 
@@ -43,13 +49,7 @@ public class BurpExtender implements IBurpExtender, ITab {
 
     @Override
     public Component getUiComponent() {
-        return gui;
+        return panel;
     }
-
-
-    //
-    // class to hold details of each log entry
-    //
-
 
 }
