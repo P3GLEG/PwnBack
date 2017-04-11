@@ -1,6 +1,8 @@
 package com.k4ch0w.pwnback;
 
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -8,9 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -81,15 +83,14 @@ public class PwnBackMediator {
         }
     }
 
-    public void exportPathsToFile() { //TODO: Parse WebTree
+    public void exportPathsToFile(TreeModel tree) { //TODO: Parse WebTree
         Path file = Paths.get(PwnBackSettings.outputDir, "output.txt");
         StringBuffer sb = new StringBuffer();
-        for (Map.Entry<String, LinkedList<String>> e :
-                dict.entrySet()) {
-            sb.append(e.getKey() + ":");
-            for (String s : e.getValue()) {
-                sb.append(s);
-            }
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getRoot();
+        for (Enumeration node = root.breadthFirstEnumeration(); node.hasMoreElements(); ) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.nextElement();
+            PwnBackNode usrNode = (PwnBackNode) child.getUserObject();
+            sb.append(usrNode.getPath());
             sb.append(System.getProperty("line.separator"));
         }
         Charset charset = Charset.forName("UTF-8");

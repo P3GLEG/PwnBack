@@ -53,6 +53,10 @@ public class PwnBackWebTree extends JPanel {
         add(scrollPane);
     }
 
+    public DefaultTreeModel getTree() {
+        return treeModel;
+    }
+
 
     public DefaultMutableTreeNode pathExists(DefaultMutableTreeNode parent, String path) {
         if (parent == null) {

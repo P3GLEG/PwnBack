@@ -85,6 +85,11 @@ public class PwnBackGUI extends JPanel {
         cancelBtn.setEnabled(false);
     }
 
+    private void exportBtnMouseClicked(MouseEvent e) {
+        this.mediator.exportPathsToFile(webTreePanel.getTree());
+
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
@@ -109,6 +114,7 @@ public class PwnBackGUI extends JPanel {
         cancelBtn = new JButton();
         startBtn = new JButton();
         webTreePanel = new PwnBackWebTree();
+        exportBtn = new JButton();
         logTablePanel = new JPanel();
 
         //======== this ========
@@ -118,7 +124,8 @@ public class PwnBackGUI extends JPanel {
                 "[300,fill]" +
                         "[grow]",
                 // rows
-                "[fill,grow]" +
+                "[grow,fill]" +
+                        "[]" +
                         "[grow]"));
 
         //======== panel7 ========
@@ -227,11 +234,21 @@ public class PwnBackGUI extends JPanel {
         }
         add(webTreePanel, "cell 1 0,growx");
 
+        //---- exportBtn ----
+        exportBtn.setText("Export Results to File");
+        exportBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                exportBtnMouseClicked(e);
+            }
+        });
+        add(exportBtn, "cell 1 1,alignx center,growx 0");
+
         //======== logTablePanel ========
         {
             logTablePanel.setLayout(new GridLayout());
         }
-        add(logTablePanel, "cell 0 1 2 1");
+        add(logTablePanel, "cell 0 2 2 1");
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
@@ -258,6 +275,7 @@ public class PwnBackGUI extends JPanel {
     private JButton cancelBtn;
     private JButton startBtn;
     private PwnBackWebTree webTreePanel;
+    private JButton exportBtn;
     private JPanel logTablePanel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
