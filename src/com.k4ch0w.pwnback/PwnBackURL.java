@@ -7,16 +7,16 @@ public class PwnBackURL {
     private final String url;
     private PwnBackType type;
 
-    public PwnBackURL(String url, PwnBackType type) {
+    PwnBackURL(String url, PwnBackType type) {
         this.url = url;
         this.type = type;
     }
 
-    public PwnBackType getType() {
+    PwnBackType getType() {
         return type;
     }
 
-    public String getURL() {
+    String getURL() {
         return url;
     }
 

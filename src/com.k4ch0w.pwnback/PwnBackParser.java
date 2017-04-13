@@ -20,30 +20,34 @@ import static org.apache.commons.lang3.CharEncoding.UTF_8;
 public class PwnBackParser implements Runnable {
     private final PwnBackMediator mediator;
 
-    public PwnBackParser(PwnBackMediator mediator) {
+    PwnBackParser(PwnBackMediator mediator) {
         this.mediator = mediator;
     }
 
     @Override
     public void run() {
-        while (true) {
-            PwnBackDocument doc = mediator.getDocument();
-            switch (doc.getType()) {
-                case WAYBACKAPI:
-                    parseWayBackAPI(doc);
-                    break;
-                case ROBOTS:
-                    parseRobotsTxt(doc);
-                    break;
-                case SITEMAPXML:
-                    parseSitemapXML(doc);
-                    break;
-                case HTML:
-                    parseHTML(doc);
-                    break;
-                default:
-                    mediator.LOG_ERROR("Unable to identify PwnBack DocType " + doc.getType());
+        try {
+            while (true) {
+                PwnBackDocument doc = mediator.getDocument();
+                switch (doc.getType()) {
+                    case WAYBACKAPI:
+                        parseWayBackAPI(doc);
+                        break;
+                    case ROBOTS:
+                        parseRobotsTxt(doc);
+                        break;
+                    case SITEMAPXML:
+                        parseSitemapXML(doc);
+                        break;
+                    case HTML:
+                        parseHTML(doc);
+                        break;
+                    default:
+                        mediator.LOG_ERROR("Unable to identify PwnBack DocType " + doc.getType());
+                }
             }
+        } catch (InterruptedException e) {
+            mediator.LOG_DEBUG("Parser Thread Interrupted by Executor");
         }
     }
 

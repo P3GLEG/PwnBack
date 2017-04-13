@@ -9,9 +9,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 
@@ -28,24 +30,26 @@ public class PwnBackMediator {
     private final int recordLimit;
     private final String yearStart;
     private final String yearEnd;
-    private final List<PwnBackTableEntry> tableEntries = new ArrayList<PwnBackTableEntry>();
-    private final ConcurrentHashMap<String, LinkedList<String>> dict = new ConcurrentHashMap<String, LinkedList<String>>();
-    private final ExecutorService docParsers = Executors.newFixedThreadPool(PwnBackSettings.numofHttpResponseParsers);
-    private final ExecutorService webDrivers = Executors.newFixedThreadPool(PwnBackSettings.numOfJSWebDrivers);
+    private final List<PwnBackTableEntry> tableEntries = new ArrayList<>();
     private final PwnBackGUI gui = new PwnBackGUI(this);
     private final BlockingQueue<PwnBackDocument> documentsToParse = new ArrayBlockingQueue<>(1000);
     private final BlockingQueue<PwnBackURL> urlsToRequest = new ArrayBlockingQueue<>(10000);
+    private ExecutorService docParsers;
+    private ExecutorService webDrivers;
+
     public PwnBackMediator() {
         recordLimit = 1000;
         yearStart = Integer.toString(PwnBackSettings.startYear);
         yearEnd = Integer.toString(PwnBackSettings.endYear);
     }
 
-    public void start() {
+    void start() {
         LOG_INFO("Marty McFly: Wait a minute. Wait a minute, Doc. Ah..." +
                 " Are you telling me that you built a time machine... out of a DeLorean?");
         LOG_INFO("Dr. Emmett Brown: The way I see it, if you're gonna build a time machine into a car," +
                 " why not do it with some *style?*");
+        docParsers = Executors.newFixedThreadPool(PwnBackSettings.numofHttpResponseParsers);
+        webDrivers = Executors.newFixedThreadPool(PwnBackSettings.numOfJSWebDrivers);
         for (int i = 0; i < PwnBackSettings.numofHttpResponseParsers; i++) {
             docParsers.execute(new PwnBackParser(this));
         }
@@ -59,21 +63,21 @@ public class PwnBackMediator {
         return gui;
     }
 
-    public List<PwnBackTableEntry> getLog() {
+    List<PwnBackTableEntry> getLog() {
         return tableEntries;
     }
 
-    public void LOG_DEBUG(String logMsg) {
+    void LOG_DEBUG(String logMsg) {
         if (PwnBackSettings.debug) {
             LOG(new PwnBackTableEntry(logMsg, PwnBackType.LOG_DEBUG));
         }
     }
 
-    public void LOG_ERROR(String logMsg) {
+    void LOG_ERROR(String logMsg) {
         LOG(new PwnBackTableEntry(logMsg, PwnBackType.LOG_ERROR));
     }
 
-    public void LOG_INFO(String logMsg) {
+    void LOG_INFO(String logMsg) {
         LOG(new PwnBackTableEntry(logMsg, PwnBackType.LOG_INFO));
     }
 
@@ -89,7 +93,7 @@ public class PwnBackMediator {
 
     }
 
-    public void addPath(PwnBackNode entry) {
+    void addPath(PwnBackNode entry) {
         treeModelLock.lock();
         try {
             gui.addURL(entry);
@@ -98,23 +102,21 @@ public class PwnBackMediator {
         }
     }
 
-    public String generatePath(TreeModel model, Object object, String indent) {
+    private String generatePath(TreeModel model, Object object, String indent) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
         if (node.getParent() != null && node.getParent().equals(model.getRoot())) {
             indent = "/"; //root node case otherwise will be // instead of /
         }
-        String myRow = indent + object + System.getProperty("line.separator");
+        StringBuilder myRow = new StringBuilder(indent + object + System.getProperty("line.separator"));
         for (int i = 0; i < model.getChildCount(object); i++) {
-            myRow += generatePath(model, model.getChild(object, i), indent + object + "/");
+            myRow.append(generatePath(model, model.getChild(object, i), indent + object + "/"));
         }
-        return myRow;
+        return myRow.toString();
     }
 
-    public boolean exportPathsToFile(TreeModel tree, Path filename) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(generatePath(tree, tree.getRoot(), ""));
+    boolean exportPathsToFile(TreeModel tree, Path filename) {
         Charset charset = Charset.forName("UTF-8");
-        String s = sb.toString();
+        String s = generatePath(tree, tree.getRoot(), "");
         try (BufferedWriter writer = Files.newBufferedWriter(filename, charset)) {
             writer.write(s, 0, s.length());
         } catch (IOException x) {
@@ -124,41 +126,33 @@ public class PwnBackMediator {
         return true;
     }
 
-    public void addDocument(PwnBackDocument doc) {
+    void addDocument(PwnBackDocument doc) {
         documentsToParse.add(doc);
     }
 
-    public void addURL(PwnBackURL url) {
+    void addURL(PwnBackURL url) {
         urlsToRequest.add(url);
     }
 
-    public void cancel() {
+    void cancel() {
         LOG_INFO("Putting the beast to sleep");
         webDrivers.shutdownNow();
         docParsers.shutdownNow();
     }
 
-    public PwnBackURL getURL() {
-        PwnBackURL url = null;
-        try {
-            url = urlsToRequest.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    PwnBackURL getURL() throws InterruptedException {
+        PwnBackURL url;
+        url = urlsToRequest.take();
         return url;
     }
 
-    public PwnBackDocument getDocument() {
-        PwnBackDocument doc = null;
-        try {
-            doc = documentsToParse.take();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    PwnBackDocument getDocument() throws InterruptedException {
+        PwnBackDocument doc;
+        doc = documentsToParse.take();
         return doc;
     }
 
-    public void addDomain(String domain) {
+    void addDomain(String domain) {
         final String waybackApiGetDomain = String.format(waybackString, domain, recordLimit, yearStart, yearEnd);
         addURL(new PwnBackURL(waybackApiGetDomain, PwnBackType.WAYBACKAPI));
     }

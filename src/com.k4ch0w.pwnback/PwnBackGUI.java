@@ -23,8 +23,36 @@ import java.util.Date;
 public class PwnBackGUI extends JPanel {
     private PwnBackMediator mediator;
     private PwnBackTable table;
+    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    // Generated using JFormDesigner non-commercial license
+    private JPanel panel7;
+    private JPanel settingsPanel;
+    private JLabel label2;
+    private JTextField webDriverTextField;
+    private JLabel label3;
+    private JTextField httpParserTextField;
+    private JLabel label4;
+    private JTextField startYearTextField;
+    private JLabel label5;
+    private JTextField endYearTextField;
+    private JLabel label6;
+    private JTextField phantomJSTextField;
+    private JButton phantomJSLocBtn;
+    private JLabel label7;
+    private JTextField outputDirectoryTextField;
+    private JButton outputBtn;
+    private JLabel label8;
+    private JTextField caBundleTextField;
+    private JButton caBundleBtn;
+    private JLabel label1;
+    private JTextField domainTextField;
+    private JButton cancelBtn;
+    private JButton startBtn;
+    private PwnBackWebTree webTreePanel;
+    private JButton exportBtn;
+    private JPanel logTablePanel;
 
-    public PwnBackGUI(PwnBackMediator mediator) {
+    PwnBackGUI(PwnBackMediator mediator) {
         this.mediator = mediator;
         initComponents();
         table = new PwnBackTable(mediator);
@@ -34,20 +62,35 @@ public class PwnBackGUI extends JPanel {
         endYearTextField.setText(Integer.toString(PwnBackSettings.endYear));
         webDriverTextField.setText(Integer.toString(PwnBackSettings.numOfJSWebDrivers));
         outputDirectoryTextField.setText(PwnBackSettings.outputDir);
+        //caBundleTextField.setText(PwnBackSettings.caBundleLocation);
         JScrollPane scrollPane = new JScrollPane(table.getLogTable());
         logTablePanel.add(scrollPane);
         cancelBtn.setEnabled(false);
     }
 
-    public void notifyUpdate() {
+    void notifyUpdate() {
         table.notifyUpdate();
     }
 
-    public void addURL(PwnBackNode entry) {
+    void addURL(PwnBackNode entry) {
         this.webTreePanel.addTreeNode(entry);
     }
 
+    private void refreshSettings() {
+        PwnBackSettings.domainToSearch = domainTextField.getText();
+        PwnBackSettings.caBundleLocation = caBundleTextField.getText();
+        PwnBackSettings.outputDir = outputDirectoryTextField.getText();
+        PwnBackSettings.phatomjsLocation = phantomJSTextField.getText();
+        PwnBackSettings.startYear = Integer.parseInt(startYearTextField.getText());
+        PwnBackSettings.endYear = Integer.parseInt(endYearTextField.getText());
+        PwnBackSettings.numofHttpResponseParsers = Integer.parseInt(httpParserTextField.getText());
+        PwnBackSettings.numOfJSWebDrivers = Integer.parseInt(webDriverTextField.getText());
+    }
+
     private void startBtnMouseClicked(MouseEvent e) {
+        startBtn.setEnabled(false);
+        cancelBtn.setEnabled(true);
+        refreshSettings();
         File f = new File(PwnBackSettings.phatomjsLocation);
         if (!f.exists()) {
             JOptionPane.showMessageDialog(this.getParent(),
@@ -60,9 +103,8 @@ public class PwnBackGUI extends JPanel {
             mediator.addDomain(domainTextField.getText());
             mediator.start();
         }
-        startBtn.setEnabled(false);
-        cancelBtn.setEnabled(true);
-        PwnBackSettings.domainToSearch = domainTextField.getText();
+
+
     }
 
     private void outputBtnMouseClicked(MouseEvent e) {
@@ -104,6 +146,14 @@ public class PwnBackGUI extends JPanel {
 
     }
 
+    private void caBundleBtnMouseClicked(MouseEvent e) {
+        JFileChooser chooser = new JFileChooser();
+        int returnVal = chooser.showOpenDialog(this.getParent());
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            caBundleTextField.setText(chooser.getSelectedFile().getAbsolutePath());
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
@@ -123,6 +173,9 @@ public class PwnBackGUI extends JPanel {
         label7 = new JLabel();
         outputDirectoryTextField = new JTextField();
         outputBtn = new JButton();
+        label8 = new JLabel();
+        caBundleTextField = new JTextField();
+        caBundleBtn = new JButton();
         label1 = new JLabel();
         domainTextField = new JTextField();
         cancelBtn = new JButton();
@@ -212,6 +265,22 @@ public class PwnBackGUI extends JPanel {
                     }
                 });
                 settingsPanel.add(outputBtn);
+
+                //---- label8 ----
+                label8.setText("CA-Bundle location");
+                label8.setHorizontalAlignment(SwingConstants.CENTER);
+                settingsPanel.add(label8);
+                settingsPanel.add(caBundleTextField);
+
+                //---- caBundleBtn ----
+                caBundleBtn.setText("Select file...");
+                caBundleBtn.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        caBundleBtnMouseClicked(e);
+                    }
+                });
+                settingsPanel.add(caBundleBtn);
             }
             panel7.add(settingsPanel, "cell 0 0,alignx center,grow 0 100");
 
@@ -265,32 +334,6 @@ public class PwnBackGUI extends JPanel {
         add(logTablePanel, "cell 0 2 2 1");
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
-
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    // Generated using JFormDesigner non-commercial license
-    private JPanel panel7;
-    private JPanel settingsPanel;
-    private JLabel label2;
-    private JTextField webDriverTextField;
-    private JLabel label3;
-    private JTextField httpParserTextField;
-    private JLabel label4;
-    private JTextField startYearTextField;
-    private JLabel label5;
-    private JTextField endYearTextField;
-    private JLabel label6;
-    private JTextField phantomJSTextField;
-    private JButton phantomJSLocBtn;
-    private JLabel label7;
-    private JTextField outputDirectoryTextField;
-    private JButton outputBtn;
-    private JLabel label1;
-    private JTextField domainTextField;
-    private JButton cancelBtn;
-    private JButton startBtn;
-    private PwnBackWebTree webTreePanel;
-    private JButton exportBtn;
-    private JPanel logTablePanel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
 

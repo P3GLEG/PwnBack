@@ -21,7 +21,7 @@ public class PwnBackTable extends AbstractTableModel {
     private final int columnCount = 1;
     private final JTable logTable = new JTable(this);
 
-    public PwnBackTable(PwnBackMediator mediator) {
+    PwnBackTable(PwnBackMediator mediator) {
         this.mediator = mediator;
         logTable.getModel().addTableModelListener(e -> {
             if (TableUtilities.isInsert(e)) {
@@ -41,11 +41,11 @@ public class PwnBackTable extends AbstractTableModel {
 
     }
 
-    public JTable getLogTable() {
+    JTable getLogTable() {
         return logTable;
     }
 
-    public void notifyUpdate() {
+    void notifyUpdate() {
         int row = mediator.getLog().size();
         fireTableRowsInserted(row, row);
     }

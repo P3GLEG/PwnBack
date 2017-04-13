@@ -8,21 +8,21 @@ public class PwnBackDocument {
     private String document;
     private String urlFoundAt;
 
-    public PwnBackDocument(String document, String urlFoundAt, PwnBackType type) {
+    PwnBackDocument(String document, String urlFoundAt, PwnBackType type) {
         this.document = document;
         this.urlFoundAt = urlFoundAt;
         this.type = type;
     }
 
-    public String getDocument() {
+    String getDocument() {
         return document;
     }
 
-    public PwnBackType getType() {
+    PwnBackType getType() {
         return type;
     }
 
-    public String getUrlFoundAt() {
+    String getUrlFoundAt() {
         return urlFoundAt;
     }
 

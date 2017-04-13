@@ -6,34 +6,34 @@ import java.util.ArrayList;
  * Created by pganea on 4/7/17.
  */
 public class PwnBackNode {
-    private String path;
     private final ArrayList<PwnBackDocument> documents = new ArrayList<>();
+    private String path;
 
     /*
         Root init only
      */
-    public PwnBackNode(String path) {
+    PwnBackNode(String path) {
         this.path = path;
     }
 
-    public PwnBackNode(String path, PwnBackDocument doc) {
+    PwnBackNode(String path, PwnBackDocument doc) {
         this.path = path;
         documents.add(doc);
     }
 
-    public String getPath() {
+    String getPath() {
         return path;
     }
 
-    public PwnBackDocument getFirstDocument() {
+    PwnBackDocument getFirstDocument() {
         return documents.get(0);
     }
 
-    public void addDocument(PwnBackDocument doc) {
+    void addDocument(PwnBackDocument doc) {
         documents.add(doc);
     }
 
-    public ArrayList<PwnBackDocument> getDocuments() {
+    ArrayList<PwnBackDocument> getDocuments() {
         return documents;
     }
 
