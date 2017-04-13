@@ -8,7 +8,6 @@ import net.miginfocom.swing.MigLayout;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.io.IOException;
@@ -17,27 +16,32 @@ import java.util.ArrayList;
 /**
  * @author Paul Ganea
  */
-public class DocumentFrame extends JFrame {
-    public DocumentFrame(ArrayList<PwnBackDocument> docs) throws IOException, SAXException {
+class DocumentFrame extends JFrame {
+    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    // Generated using JFormDesigner commercial license
+    private JScrollPane scrollPane1;
+    private JList<PwnBackDocument> list1;
+    private JPanel panel1;
+    private JScrollPane scrollPane2;
+    private JTextPane textPane1;
+
+    DocumentFrame(ArrayList<PwnBackDocument> docs) throws IOException, SAXException {
         initComponents();
         DefaultListModel<PwnBackDocument> listModel;
-        listModel = new DefaultListModel<PwnBackDocument>();
+        listModel = new DefaultListModel<>();
         for (PwnBackDocument doc : docs) {
             listModel.addElement(doc);
         }
         list1.setModel(listModel);
-        ListSelectionListener listSelectionListener = new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent listSelectionEvent) {
-                if (!listSelectionEvent.getValueIsAdjusting()) {
-                    textPane1.setText(listModel.get(list1.getSelectedIndex()).getDocument());
-                }
+        ListSelectionListener listSelectionListener = listSelectionEvent -> {
+            if (!listSelectionEvent.getValueIsAdjusting()) {
+                textPane1.setText(listModel.get(list1.getSelectedIndex()).getDocument());
             }
         };
         list1.addListSelectionListener(listSelectionListener);
         textPane1.setText(docs.get(0).getDocument());
         textPane1.setEditable(false);
     }
-
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -82,13 +86,5 @@ public class DocumentFrame extends JFrame {
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
-
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    // Generated using JFormDesigner non-commercial license
-    private JScrollPane scrollPane1;
-    private JList<PwnBackDocument> list1;
-    private JPanel panel1;
-    private JScrollPane scrollPane2;
-    private JTextPane textPane1;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

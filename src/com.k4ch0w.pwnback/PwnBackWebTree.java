@@ -15,12 +15,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-public class PwnBackWebTree extends JPanel {
+class PwnBackWebTree extends JPanel {
     private DefaultMutableTreeNode rootNode;
     private DefaultTreeModel treeModel;
     private JTree tree;
 
-    public PwnBackWebTree() {
+    PwnBackWebTree() {
         super(new GridLayout(1, 0));
         rootNode = new DefaultMutableTreeNode(new PwnBackNode("/"));
         treeModel = new DefaultTreeModel(rootNode);
@@ -37,7 +37,7 @@ public class PwnBackWebTree extends JPanel {
                             tree.getLastSelectedPathComponent();
                     if (node == null) return;
                     PwnBackNode nodeInfo = (PwnBackNode) node.getUserObject();
-                    DocumentFrame docPanel = null;
+                    DocumentFrame docPanel;
                     try {
                         docPanel = new DocumentFrame(nodeInfo.getDocuments());
                         docPanel.setTitle(nodeInfo.getPath());
@@ -54,12 +54,12 @@ public class PwnBackWebTree extends JPanel {
         add(scrollPane);
     }
 
-    public DefaultTreeModel getTree() {
+    DefaultTreeModel getTree() {
         return treeModel;
     }
 
 
-    public DefaultMutableTreeNode pathExists(DefaultMutableTreeNode parent, String path) {
+    private DefaultMutableTreeNode pathExists(DefaultMutableTreeNode parent, String path) {
         if (parent == null) {
             parent = rootNode;
         }
@@ -73,7 +73,7 @@ public class PwnBackWebTree extends JPanel {
         return null;
     }
 
-    public void addTreeNode(PwnBackNode node) {
+    void addTreeNode(PwnBackNode node) {
         String[] temp = node.getPath().split("/");
         addTreeNode(null, temp, node.getFirstDocument());
     }
@@ -110,9 +110,9 @@ public class PwnBackWebTree extends JPanel {
     }
 
 
-    public DefaultMutableTreeNode addObject(final DefaultMutableTreeNode parent,
-                                            Object child,
-                                            boolean shouldBeVisible) {
+    private DefaultMutableTreeNode addObject(final DefaultMutableTreeNode parent,
+                                             Object child,
+                                             boolean shouldBeVisible) {
         DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
 
 

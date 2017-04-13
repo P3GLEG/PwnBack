@@ -77,6 +77,19 @@ new FormModel {
 						"text": "Select folder..."
 						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "outputBtnMouseClicked", true ) )
 					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label8"
+						"text": "CA-Bundle location"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "caBundleTextField"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "caBundleBtn"
+						"text": "Select file..."
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "caBundleBtnMouseClicked", true ) )
+					} )
 				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
 					"value": "cell 0 0,alignx center,grow 0 100"
 				} )

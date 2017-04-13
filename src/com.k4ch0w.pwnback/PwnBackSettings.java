@@ -4,14 +4,15 @@ package com.k4ch0w.pwnback;
  * Created by k4ch0w on 3/30/17.
  */
 public class PwnBackSettings {
-    public static int numOfJSWebDrivers;
-    public static int numofHttpResponseParsers;
-    public static int startYear;
-    public static int endYear;
-    public static String phatomjsLocation;
-    public static String outputDir;
-    public static boolean debug;
-    public static String domainToSearch;
+    static int numOfJSWebDrivers;
+    static int numofHttpResponseParsers;
+    static int startYear;
+    static int endYear;
+    static String phatomjsLocation;
+    static String outputDir;
+    static String caBundleLocation;
+    static boolean debug;
+    static String domainToSearch;
     private static PwnBackSettings _instance = instance();
 
     public PwnBackSettings() {
@@ -21,11 +22,12 @@ public class PwnBackSettings {
         endYear = 2017;
         phatomjsLocation = "/Applications/phantomjs";
         outputDir = System.getProperty("user.home");
+        caBundleLocation = System.getProperty("user.home") + "/cacert.pem";
         domainToSearch = "";
         debug = false;
     }
 
-    static public PwnBackSettings instance() {
+    private static PwnBackSettings instance() {
         if (_instance == null) {
             _instance = new PwnBackSettings();
         }

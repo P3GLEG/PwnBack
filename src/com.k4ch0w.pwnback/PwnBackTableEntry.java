@@ -9,7 +9,7 @@ public class PwnBackTableEntry {
     private final String logMsg;
     private final Color rowColor;
 
-    public PwnBackTableEntry(String msg, PwnBackType logColor) {
+    PwnBackTableEntry(String msg, PwnBackType logColor) {
         this.logMsg = msg;
         switch (logColor) {
             case LOG_DEBUG:
@@ -28,11 +28,11 @@ public class PwnBackTableEntry {
 
     }
 
-    public String getLogMsg() {
+    String getLogMsg() {
         return logMsg;
     }
 
-    public Color getRowColor() {
+    Color getRowColor() {
         return rowColor;
     }
 
