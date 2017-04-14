@@ -12,8 +12,8 @@ public class PwnBackNode {
     /*
         Root init only
      */
-    PwnBackNode(String path) {
-        this.path = path;
+    PwnBackNode(String rootPath) {
+        this.path = rootPath;
     }
 
     PwnBackNode(String path, PwnBackDocument doc) {

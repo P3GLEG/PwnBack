@@ -18,6 +18,8 @@ import static org.apache.commons.lang3.CharEncoding.UTF_8;
  * Created by k4ch0w on 3/27/17.
  */
 public class PwnBackParser implements Runnable {
+    private static final String ROBOTS_TXT = "robots.txt";
+    private static final String SITEMAP_XML = "sitemap.xml";
     private final PwnBackMediator mediator;
 
     PwnBackParser(PwnBackMediator mediator) {
@@ -60,62 +62,78 @@ public class PwnBackParser implements Runnable {
         return Jsoup.parse(html).text();
     }
 
+    private void parseRobotsTxtLine(String line, PwnBackDocument doc) {
+        String[] tokens = line.split(" ");
+        if (tokens.length == 2) {
+            switch (tokens[0]) {
+                case "disallow:":
+                    mediator.addPath(new PwnBackNode(tokens[1], doc));
+                    break;
+                case "allow:":
+                    mediator.addPath(new PwnBackNode(tokens[1], doc));
+                    break;
+                case "sitemap:":
+                    mediator.addURL(new PwnBackURL(tokens[1], PwnBackType.SITEMAPXML));
+                    break;
+            }
+        } else {
+            mediator.LOG_DEBUG("Fix this? " + Arrays.toString(tokens));
+        }
+    }
+
     private void parseRobotsTxt(PwnBackDocument doc) {
         String txt = stripHTMLTags(doc.getDocument());
         Scanner scanner = new Scanner(txt);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().toLowerCase();
-            String[] temp = line.split(" ");
-            if (temp.length == 2) {
-                switch (temp[0]) {
-                    case "disallow:":
-                        mediator.addPath(new PwnBackNode(temp[1], doc));
-                        break;
-                    case "allow:":
-                        mediator.addPath(new PwnBackNode(temp[1], doc));
-                        break;
-                    case "sitemap:":
-                        mediator.addURL(new PwnBackURL(temp[1], PwnBackType.SITEMAPXML));
-                        break;
-                }
-            } else {
-                mediator.LOG_DEBUG("Fix this? " + Arrays.toString(temp));
-            }
+            parseRobotsTxtLine(line, doc);
         }
         scanner.close();
+    }
+
+    private boolean isEmailAddress(String href) {
+        return href.startsWith("mailto:");
+    }
+
+    private boolean isHttpHref(String href) {
+        return href.startsWith("/web/") && href.contains("http");
+    }
+
+    private boolean checkValidPath(String path) {
+        return !path.isEmpty() && !path.equals("/") && !path.equals("/web/");
+    }
+
+    private void parseHrefTag(Element tag, PwnBackDocument document) {
+        String relHref = tag.attr("href");
+        if (isEmailAddress(relHref)) {
+            mediator.LOG_INFO("Found email address " + relHref.replace("mailto:", ""));
+        } else if (isHttpHref(relHref)) {
+            String sanitizedURL = relHref.substring(relHref.indexOf("http"));
+            try {
+                URL temp = new URL(sanitizedURL);
+                String path = temp.getPath();
+                if (checkValidPath(path) && checkValidURL(sanitizedURL)) {
+                    mediator.addPath(new PwnBackNode(path, document));
+                }
+            } catch (MalformedURLException e) {
+                mediator.LOG_ERROR("Error parsing URL : " + sanitizedURL);
+            }
+        } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
+            mediator.LOG_DEBUG("Empty or starts with #: " + relHref);
+        } else {
+            if (checkValidURL(relHref)) {
+                mediator.addPath(new PwnBackNode(relHref, document));
+            }
+        }
     }
 
     private void parseHTML(PwnBackDocument document) {
         String html = removeWaybackToolbar(document.getDocument());
         Document doc = Jsoup.parse(html);
         Elements links = doc.select("a");
-        for (Element link :
+        for (Element tag :
                 links) {
-            String relHref = link.attr("href");
-            if (relHref.startsWith("mailto:")) {
-                mediator.LOG_INFO("Found email address " + relHref.replace("mailto:", ""));
-            } else if (relHref.startsWith("/web/") && relHref.contains("http")) {
-                //Wayback machine uses it's domain to serve content thus things are prepended
-                // with http://archive.org/web and why I split them here
-                String clean = relHref.substring(relHref.indexOf("http"));
-                try {
-                    URL temp = new URL(clean);
-                    String path = temp.getPath();
-                    if (!path.isEmpty() && !path.equals("/") && !path.equals("/web/")
-                            && !temp.getHost().contains("archive.org")) {
-                        mediator.addPath(new PwnBackNode(path, document));
-                    }
-                } catch (MalformedURLException e) {
-                    mediator.LOG_ERROR("Error parsing URL : " + clean);
-                }
-            } else if (relHref.equals("") || relHref.startsWith("#") || relHref.equals("/")) {
-                mediator.LOG_DEBUG("Empty or starts with #: " + relHref);
-            } else {
-
-                if (checkValidURL(relHref)) {
-                    mediator.addPath(new PwnBackNode(relHref, document));
-                }
-            }
+            parseHrefTag(tag, document);
         }
     }
 
@@ -134,19 +152,20 @@ public class PwnBackParser implements Runnable {
         return false;
     }
 
+    private boolean checkValidWayBackArchive(String[] archive) {
+        return archive.length == 7 && (!archive[1].equals("http:///") || !archive[1].equals("https:///"));
+    }
+
 
     private void parseWayBackAPI(PwnBackDocument doc) {
         String[] waybackUrls = stripHTMLTags(doc.getDocument()).split("\\r?\\n");
-        for (String u :
-                waybackUrls) {
+        for (String u : waybackUrls) {
             String[] archive = u.split(" ");
-            if (archive.length == 7 && (!archive[1].equals("http:///") || !archive[1].equals("https:///"))) { //Each archive address has 7 values return
+            if (checkValidWayBackArchive(archive)) {
                 String waybackRequestString = "http://web.archive.org/web/%s/%s";
                 String url = String.format(waybackRequestString, archive[1], archive[2]);
                 mediator.addURL(new PwnBackURL(url, PwnBackType.HTML));
-                String ROBOTS_TXT = "robots.txt";
                 mediator.addURL(new PwnBackURL(url + ROBOTS_TXT, PwnBackType.ROBOTS));
-                String SITEMAP_XML = "sitemap.xml";
                 mediator.addURL(new PwnBackURL(url + SITEMAP_XML, PwnBackType.SITEMAPXML));
             }
         }
@@ -172,14 +191,14 @@ public class PwnBackParser implements Runnable {
                         SiteMap sm = (SiteMap) asmi;
                         addSiteMapURLS(sm, doc);
                     } else {
-                        mediator.LOG_ERROR("Error figuring out ASM type: " + asmi.getClass());
+                        mediator.LOG_ERROR("Error figuring out SiteMap type: " + asmi.getClass());
                     }
                 }
             } else {
                 mediator.LOG_ERROR("Shouldn't be here");
             }
         } catch (IOException | UnknownFormatException e) {
-            e.printStackTrace();
+            mediator.LOG_DEBUG(e.getLocalizedMessage());
         }
 
     }

@@ -23,13 +23,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 //Wayback documentation located at https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
 public class PwnBackMediator {
+    private static final String waybackString = "http://web.archive.org/cdx/search/cdx?url=%s&limit=%s&from=%s&to=%s" +
+            "&showResumeKey=True&collapse=digest";//Remove duplicates based on page digest
     public final ReentrantLock treeModelLock = new ReentrantLock();
     public final ReentrantLock logTableLock = new ReentrantLock();
-    private final String waybackString = "http://web.archive.org/cdx/search/cdx?url=%s&limit=%s&from=%s&to=%s" +
-            "&showResumeKey=True&collapse=digest";//Remove duplicates based on page digest
-    private final int recordLimit;
-    private final String yearStart;
-    private final String yearEnd;
+    private final int recordLimit = 1000;
     private final List<PwnBackTableEntry> tableEntries = new ArrayList<>();
     private final PwnBackGUI gui = new PwnBackGUI(this);
     private final BlockingQueue<PwnBackDocument> documentsToParse = new ArrayBlockingQueue<>(1000);
@@ -37,17 +35,17 @@ public class PwnBackMediator {
     private ExecutorService docParsers;
     private ExecutorService webDrivers;
 
-    public PwnBackMediator() {
-        recordLimit = 1000;
-        yearStart = Integer.toString(PwnBackSettings.startYear);
-        yearEnd = Integer.toString(PwnBackSettings.endYear);
-    }
+    private String yearStart = Integer.toString(PwnBackSettings.startYear);
+    private String yearEnd = Integer.toString(PwnBackSettings.endYear);
 
     void start() {
         LOG_INFO("Marty McFly: Wait a minute. Wait a minute, Doc. Ah..." +
                 " Are you telling me that you built a time machine... out of a DeLorean?");
         LOG_INFO("Dr. Emmett Brown: The way I see it, if you're gonna build a time machine into a car," +
                 " why not do it with some *style?*");
+
+        yearStart = Integer.toString(PwnBackSettings.endYear);
+        yearEnd = Integer.toString(PwnBackSettings.endYear);
         docParsers = Executors.newFixedThreadPool(PwnBackSettings.numofHttpResponseParsers);
         webDrivers = Executors.newFixedThreadPool(PwnBackSettings.numOfJSWebDrivers);
         for (int i = 0; i < PwnBackSettings.numofHttpResponseParsers; i++) {
@@ -89,8 +87,6 @@ public class PwnBackMediator {
         } finally {
             logTableLock.unlock();
         }
-
-
     }
 
     void addPath(PwnBackNode entry) {
@@ -102,16 +98,20 @@ public class PwnBackMediator {
         }
     }
 
-    private String generatePath(TreeModel model, Object object, String indent) {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
-        if (node.getParent() != null && node.getParent().equals(model.getRoot())) {
-            indent = "/"; //root node case otherwise will be // instead of /
+    private boolean checkIfRootNode(TreeModel model, DefaultMutableTreeNode node) {
+        return node.getParent() != null && node.getParent().equals(model.getRoot());
+    }
+
+    private String generatePath(TreeModel model, Object currentNode, String path) {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) currentNode;
+        if (checkIfRootNode(model, node)) {
+            path = "/";
         }
-        StringBuilder myRow = new StringBuilder(indent + object + System.getProperty("line.separator"));
-        for (int i = 0; i < model.getChildCount(object); i++) {
-            myRow.append(generatePath(model, model.getChild(object, i), indent + object + "/"));
+        StringBuilder pathBuilder = new StringBuilder(path + currentNode + System.getProperty("line.separator"));
+        for (int i = 0; i < model.getChildCount(currentNode); i++) {
+            pathBuilder.append(generatePath(model, model.getChild(currentNode, i), path + currentNode + "/"));
         }
-        return myRow.toString();
+        return pathBuilder.toString();
     }
 
     boolean exportPathsToFile(TreeModel tree, Path filename) {
