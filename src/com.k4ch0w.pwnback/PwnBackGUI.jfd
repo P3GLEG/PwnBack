@@ -1,0 +1,146 @@
+JFDML JFormDesigner: "6.0.0.0.84" Java: "1.8.0_112-release" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+			"$layoutConstraints": "insets 0,hidemode 3,gap 0 0"
+			"$columnConstraints": "[300,fill][grow]"
+			"$rowConstraints": "[grow,fill][][grow]"
+		} ) {
+			name: "this"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class net.miginfocom.swing.MigLayout ) {
+				"$layoutConstraints": "fill,insets 0,hidemode 3,align center center,gap 0 0"
+				"$columnConstraints": "[fill]"
+				"$rowConstraints": "[301,fill][grow][fill]"
+			} ) {
+				name: "panel7"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.swingx.VerticalLayout ) {
+					"gap": 5
+				} ) {
+					name: "settingsPanel"
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label2"
+						"text": "# of PhantomJS WebDrivers"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "webDriverTextField"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label3"
+						"text": "# of HTTP Response Parsers"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "httpParserTextField"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label4"
+						"text": "Start Year"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "startYearTextField"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label5"
+						"text": "End Year"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "endYearTextField"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label6"
+						"text": "PhantomJS Location"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "phantomJSTextField"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "phantomJSLocBtn"
+						"text": "Select file..."
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "phantomJSLocBtnMouseClicked", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label7"
+						"text": "Output Folder"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "outputDirectoryTextField"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "outputBtn"
+						"text": "Select folder..."
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "outputBtnMouseClicked", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label8"
+						"text": "CA-Bundle location"
+						"horizontalAlignment": 0
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "caBundleTextField"
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "caBundleBtn"
+						"text": "Select file..."
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "caBundleBtnMouseClicked", true ) )
+					} )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 0,alignx center,grow 0 100"
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "label1"
+					"text": "Domain: "
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 1,alignx center,growx 0"
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "domainTextField"
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 1"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "cancelBtn"
+					"text": "Cancel"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "cancelBtnMouseClicked", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 2"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "startBtn"
+					"text": "Start"
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "startBtnMouseClicked", true ) )
+				}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+					"value": "cell 0 2"
+				} )
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 0 0"
+			} )
+			add( new FormContainer( "com.k4ch0w.pwnback.PwnBackWebTree", new FormLayoutManager( class java.awt.GridLayout ) ) {
+				name: "webTreePanel"
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 1 0,growx"
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "exportBtn"
+				"text": "Export Results to File"
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "exportBtnMouseClicked", true ) )
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 1 1,alignx center,growx 0"
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) ) {
+				name: "logTablePanel"
+			}, new FormLayoutConstraints( class net.miginfocom.layout.CC ) {
+				"value": "cell 0 2 2 1"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 700, 550 )
+		} )
+	}
+}
