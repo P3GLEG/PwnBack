@@ -20,6 +20,7 @@ class PwnBackWebTree extends JPanel {
     private DefaultTreeModel treeModel;
     private JTree tree;
 
+
     PwnBackWebTree() {
         super(new GridLayout(1, 0));
         rootNode = new DefaultMutableTreeNode(new PwnBackNode("/"));
@@ -29,27 +30,7 @@ class PwnBackWebTree extends JPanel {
         tree.getSelectionModel().setSelectionMode
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setShowsRootHandles(true);
-        tree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                            tree.getLastSelectedPathComponent();
-                    if (node == null) return;
-                    PwnBackNode nodeInfo = (PwnBackNode) node.getUserObject();
-                    DocumentFrame docPanel;
-                    try {
-                        docPanel = new DocumentFrame(nodeInfo.getDocuments());
-                        docPanel.setTitle(nodeInfo.getPath());
-                        docPanel.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        docPanel.setVisible(true);
-                    } catch (IOException | SAXException e1) {
-                        e1.printStackTrace();
-                    }
-
-                }
-            }
-        });
+        tree.addMouseListener(new PwnBackTreeMouseListener());
         JScrollPane scrollPane = new JScrollPane(tree);
         add(scrollPane);
     }
@@ -78,43 +59,60 @@ class PwnBackWebTree extends JPanel {
         addTreeNode(null, temp, node.getFirstDocument());
     }
 
-    private void addTreeNode(DefaultMutableTreeNode parent, String[] paths, PwnBackDocument doc) {
-        DefaultMutableTreeNode child;
+    private String[] removeEmptyOrNull(String[] paths) {
         while (paths[0] == null || paths[0].equals("")) {
             paths = Arrays.copyOfRange(paths, 1, paths.length);
         }
+        return paths;
+    }
+
+    private boolean isLeafPath(String[] paths) {
+        return paths.length == 1;
+    }
+
+    private void addNewLeaf(DefaultMutableTreeNode parent, DefaultMutableTreeNode child, PwnBackNode newNode) {
+        if (child == null) {
+            addChildNode(parent, newNode, false);
+        } else {
+            PwnBackNode existingNode = (PwnBackNode) child.getUserObject();
+            existingNode.addDocument(newNode.getFirstDocument());
+        }
+    }
+
+    private DefaultMutableTreeNode addNewChildNode(DefaultMutableTreeNode parent, DefaultMutableTreeNode child, PwnBackNode newNode) {
+        if (child == null) {
+            if (parent.equals(rootNode)) {
+                return addChildNode(parent, newNode, true);
+            } else {
+                return addChildNode(parent, newNode, false);
+            }
+        }
+        return null;
+    }
+
+    private void addTreeNode(DefaultMutableTreeNode parent, String[] paths, PwnBackDocument doc) {
         if (parent == null) {
             parent = rootNode;
         }
-        PwnBackNode newNode = new PwnBackNode(paths[0], doc);
-        if (paths.length == 1) {
-            child = pathExists(parent, paths[0]);
-            if (child == null) {
-                addObject(parent, newNode, false);
-            } else {
-                PwnBackNode existingNode = (PwnBackNode) child.getUserObject();
-                existingNode.addDocument(doc);
-            }
+        paths = removeEmptyOrNull(paths);
+        String currentPath = paths[0];
+        DefaultMutableTreeNode child;
+        child = pathExists(parent, currentPath);
+        PwnBackNode newNode = new PwnBackNode(currentPath, doc);
+        if (isLeafPath(paths)) {
+            addNewLeaf(parent, child, newNode);
         } else {
-            child = pathExists(parent, paths[0]);
-            if (child == null) {
-                //New Leaf
-                if (parent.equals(rootNode)) {
-                    child = addObject(parent, newNode, true);
-                } else {
-                    child = addObject(parent, newNode, false);
-                }
-            }
+            child = addNewChildNode(parent, child, newNode);
             addTreeNode(child, Arrays.copyOfRange(paths, 1, paths.length), doc);
         }
     }
 
 
-    private DefaultMutableTreeNode addObject(final DefaultMutableTreeNode parent,
-                                             Object child,
-                                             boolean shouldBeVisible) {
-        DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
+    private DefaultMutableTreeNode addChildNode(final DefaultMutableTreeNode parent,
+                                                Object child,
+                                                boolean shouldBeVisible) {
 
+        DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(child);
 
         if (SwingUtilities.isEventDispatchThread()) {
             treeModel.insertNodeInto(childNode, parent,
@@ -134,6 +132,26 @@ class PwnBackWebTree extends JPanel {
         return childNode;
     }
 
+    private class PwnBackTreeMouseListener extends MouseAdapter {
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                        tree.getLastSelectedPathComponent();
+                if (node == null) return;
+                PwnBackNode nodeInfo = (PwnBackNode) node.getUserObject();
+                PwnBackDocumentFrame docPanel;
+                try {
+                    docPanel = new PwnBackDocumentFrame(nodeInfo.getDocuments());
+                    docPanel.setTitle(nodeInfo.getPath());
+                    docPanel.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    docPanel.setVisible(true);
+                } catch (IOException | SAXException e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+        }
+    }
 }
 
 

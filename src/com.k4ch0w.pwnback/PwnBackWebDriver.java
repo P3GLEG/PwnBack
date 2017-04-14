@@ -22,17 +22,22 @@ public class PwnBackWebDriver implements Runnable {
                 .build();
         DesiredCapabilities capability = new DesiredCapabilities();
         capability.setCapability("takesScreenshot", false);
-        File f = new File(PwnBackSettings.caBundleLocation);
         String[] args = new String[1];
         args[0] = "";
-        if (f.exists() && !f.isDirectory()) {
+        if (checkSSLCertPathDefined()) {
             args[0] = "--ssl-certificates-path=" + PwnBackSettings.caBundleLocation;
         }
         capability.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, args);
         capability.setCapability("phantomjs.page.settings.userAgent", "Mozilla/5.0 (Windows NT 5.1; rv:22.0) Gecko/20100101 Firefox/22.0");
         driver = new PhantomJSDriver(driverService, capability);
+    }
 
-
+    private boolean checkSSLCertPathDefined() {
+        File f = new File(PwnBackSettings.caBundleLocation);
+        if (f.exists() && !f.isDirectory()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
