@@ -6,3 +6,4 @@ gradle/
 gradlew
 gradlew.bat
 logging.log*
+.DS_Store
