@@ -11,7 +11,7 @@ To understand why it is required currently see the section [PhantomsJS](###Phant
 
 
 
-The plugin has several settings that a user is able to define depending on their hardware setup.
+The plugin has several settings that a user can define depending on their hardware setup.
 
 * &#35; of PhantomJS WebDrivers
   - The number of Firefox headless browsers to open. Be mindful of Burp Suite's memory settings
@@ -23,7 +23,7 @@ The plugin has several settings that a user is able to define depending on their
   - How far back in a Website's history you'd like to traverse
 
 * End Year
-  - When to stop looking at a Website's history
+  - When to stop looking at a Website's History
 
 * PhantomJS Location
   - The location of the PhantomJS binary
@@ -32,10 +32,10 @@ The plugin has several settings that a user is able to define depending on their
   - Where to save results when the Export Results button is pressed
 
 * Domain
-  - The domain name to crawl for, I.E example.com, example.org, etc.
+  - The domain name to crawl. example.com, example.org, etc.
 
 * CA Bundle
-  - The CA certificate you wish to use for PhantomJS. You shouldn't need this, however check
+  - The CA certificate you wish to use for PhantomJS. You shouldn't need this, however, check
   Troubleshooting if no traffic is being generated
 
 
@@ -45,9 +45,9 @@ In BurpSuite open the Extender Tab
 
 Click the Add button
 
-Locate the jar file included with this repo.
+Locate the jar file included in this repo.
 
-The current version of is v1.7.21, I am unable to guarantee backwards support.
+The current version of is v1.7.21, I am unable to guarantee backward support.
 
 ## Build
 
@@ -73,13 +73,13 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ### PhantomJS
 
 PhantomJS is required to correctly render pages produced by archive.org.
-The service uses ajax calls to render the page, so if you don't use a webdriver that
-supports Javascript you will only receive the wayback machines toolbar.
+The service uses ajax calls to render the page, so if you don't use a web driver that
+supports Javascript you will only receive the way back machines toolbar.
 
 
 ### Troubleshooting
-There is an issue with the JVM's Cert storage on certain computers and the SSL certifcate provided by archive.org
-If you see no traffic traffic being generate run the following command and provide the path to the CA-Bundle
+There is an issue with the JVM's Cert storage on certain computers and the SSL certificate provided by archive.org
+If you see no traffic being generate run the following command and provide the path to the CA-Bundle
 
 ```bash
 curl --remote-name --time-cond cacert.pem https://curl.haxx.se/ca/cacert.pem
