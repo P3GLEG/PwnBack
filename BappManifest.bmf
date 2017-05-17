@@ -1,0 +1,12 @@
+Uuid: 5c7c516c690345c19fbf55b2b2ebeb76
+ExtensionType: 1
+Name: Wayback Machine
+RepoName: wayback-machine
+ScreenVersion: 0.1
+SerialVersion: 0
+MinPlatformVersion: 0
+ProOnly: False
+Author: k4ch0w
+ShortDescription: Generate a sitemap using Wayback Machine.
+EntryPoint: build/libs/wayback-machine-0.1.jar
+BuildCommand: gradle jar
