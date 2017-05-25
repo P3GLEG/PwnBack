@@ -9,4 +9,4 @@ ProOnly: False
 Author: k4ch0w
 ShortDescription: Generate a sitemap using Wayback Machine.
 EntryPoint: build/libs/wayback-machine-0.1.jar
-BuildCommand: gradle jar
+BuildCommand: gradle fatJar
