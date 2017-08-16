@@ -15,7 +15,7 @@ public class BurpExtender implements IBurpExtender, ITab {
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
         helpers = callbacks.getHelpers();
-        callbacks.setExtensionName("PwnBack");
+        callbacks.setExtensionName("Wayback Machine");
         SwingUtilities.invokeLater(() -> {
             PwnBackMediator mediator = new PwnBackMediator();
             panel = mediator.getGui();
@@ -26,7 +26,7 @@ public class BurpExtender implements IBurpExtender, ITab {
 
     @Override
     public String getTabCaption() {
-        return "PwnBack";
+        return "Wayback Machine";
     }
 
     @Override
