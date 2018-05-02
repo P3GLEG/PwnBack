@@ -1,9 +1,4 @@
-/*
- * Created by JFormDesigner on Tue Mar 28 14:58:28 PDT 2017
- */
-
-package com.k4ch0w.pwnback;
-
+package com.k4ch0w.wayback_machine;
 
 import org.jdesktop.swingx.table.TableUtilities;
 
@@ -11,18 +6,20 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @author unknown
+ * @author k4ch0w
  */
 public class PwnBackTable extends AbstractTableModel {
 
-    private final PwnBackMediator mediator;
     private final int columnCount = 1;
     private final JTable logTable = new JTable(this);
+    private final List<PwnBackTableEntry> tableEntries = new ArrayList<>();
 
-    PwnBackTable(PwnBackMediator mediator) {
-        this.mediator = mediator;
+
+    PwnBackTable() {
         logTable.getModel().addTableModelListener(e -> {
             if (TableUtilities.isInsert(e)) {
                 int viewRow = logTable.convertRowIndexToView(e.getFirstRow());
@@ -32,9 +29,7 @@ public class PwnBackTable extends AbstractTableModel {
         logTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                c.setForeground(mediator.getLog().get(row).getRowColor());
-                return c;
+                return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
         });
 
@@ -45,14 +40,14 @@ public class PwnBackTable extends AbstractTableModel {
         return logTable;
     }
 
-    void notifyUpdate() {
-        int row = mediator.getLog().size();
+    private void notifyUpdate() {
+        int row = tableEntries.size();
         fireTableRowsInserted(row, row);
     }
 
     @Override
     public int getRowCount() {
-        return mediator.getLog().size();
+        return tableEntries.size();
     }
 
     @Override
@@ -85,12 +80,32 @@ public class PwnBackTable extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
             case 0:
-                return mediator.getLog().get(rowIndex).getLogMsg();
+                return tableEntries.get(rowIndex).getLogMsg();
             case 1:
-                return mediator.getLog().get(rowIndex).getRowColor();
+                return tableEntries.get(rowIndex).getRowColor();
             default:
                 return "";
         }
     }
+
+    void reset() {
+        tableEntries.clear();
+        this.notifyUpdate();
+
+    }
+
+    void log(String msg) {
+        log(new PwnBackTableEntry(msg));
+    }
+
+    void log(PwnBackTableEntry entry) {
+        tableEntries.add(entry);
+        this.notifyUpdate();
+    }
+
+    void logError(String msg) {
+        log(new PwnBackTableEntry(msg, Color.red));
+    }
+
 
 }

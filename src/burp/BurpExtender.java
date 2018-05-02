@@ -1,7 +1,6 @@
 package burp;
 
-import com.k4ch0w.pwnback.PwnBackGUI;
-import com.k4ch0w.pwnback.PwnBackMediator;
+import com.k4ch0w.wayback_machine.PwnBack;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +8,9 @@ import java.awt.*;
 public class BurpExtender implements IBurpExtender, ITab {
     private IBurpExtenderCallbacks callbacks;
     private IExtensionHelpers helpers;
-    private PwnBackGUI panel;
+    private JPanel panel;
+    private JSplitPane splitPane;
+
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
@@ -17,8 +18,8 @@ public class BurpExtender implements IBurpExtender, ITab {
         helpers = callbacks.getHelpers();
         callbacks.setExtensionName("Wayback Machine");
         SwingUtilities.invokeLater(() -> {
-            PwnBackMediator mediator = new PwnBackMediator();
-            panel = mediator.getGui();
+            PwnBack p = new PwnBack();
+            panel = p.getGui();
             callbacks.customizeUiComponent(panel);
             callbacks.addSuiteTab(BurpExtender.this);
         });
@@ -33,5 +34,6 @@ public class BurpExtender implements IBurpExtender, ITab {
     public Component getUiComponent() {
         return panel;
     }
+
 
 }

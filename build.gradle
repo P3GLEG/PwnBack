@@ -1,14 +1,16 @@
 apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 apply plugin: 'idea'
 apply plugin: 'java-library-distribution'
-version = '0.1'
+version = '0.2'
 repositories {
     maven { url 'https://jitpack.io'}
     mavenCentral()
 }
 
 dependencies {
-    compile 'net.portswigger.burp.extender:burp-extender-api:1.7.13'
+    compile 'net.portswigger.burp.extender:burp-extender-api:1.7.22'
     compile 'org.jsoup:jsoup:1.10.2'
     compile 'org.seleniumhq.selenium:selenium-java:2.41.0'
     compile group: 'org.json', name: 'json', version: '20160810'
